@@ -1676,6 +1676,32 @@ mod tests {
     }
 
     #[test]
+    fn a_register_local_has_no_asm_variable_comment() {
+        let row = |name: &str, stack_offset: Option<i64>| super::VarInfo {
+            name: name.into(),
+            type_name: "long".into(),
+            stack_offset,
+            size: 8,
+            is_param: false,
+            arg_index: None,
+            line_numbers: vec![],
+            addresses: vec![],
+        };
+        let mut r = streamed("long sub_1000(long);", "long");
+        r.variables.extend([row("local_18", Some(-0x18)), row("v1", None)]);
+        assert_eq!(
+            super::var_header_lines(&r),
+            "; arg:   a0 (long)\n; stack: local_18 @ [stack-0x18] (long)\n"
+        );
+        r.variables.retain(|v| v.kind() == "register");
+        assert_eq!(super::var_header_lines(&r), "");
+        assert_eq!(
+            crate::project_stream::render_variables_section(&[r]),
+            "\n; --- variables ---\n"
+        );
+    }
+
+    #[test]
     fn pointer_arguments_use_only_the_final_successful_results() {
         use kuna_decomp::kuna_pointerargs::{Call, Parameter, Position, Record};
         let storage = (("register".into(), 0x38), 8);
