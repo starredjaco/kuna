@@ -1601,6 +1601,8 @@ pub struct PrintC {
     local_name_standalones: std::collections::HashSet<crate::context::HighVariableId>,
     /// (kuna) The locals the last document declared, as [`DeclaredLocal`]s.
     declared_locals: Vec<DeclaredLocal>,
+    /// (kuna) The entry of the function the last document printed.
+    declared_entry: Option<Address>,
     /// Final C declarations, including storage and symbol overrides.
     pointer_decls: crate::kuna_pointerargs::Declarations,
     /// Pointer-argument facts are recorded only for a buffered driver that asked
@@ -1657,6 +1659,7 @@ impl PrintC {
             local_name_aliases: std::collections::HashMap::new(),
             local_name_standalones: std::collections::HashSet::new(),
             declared_locals: Vec::new(),
+            declared_entry: None,
             pointer_decls: crate::kuna_pointerargs::Declarations::default(),
             record_pointer_arguments: false,
             pointer_record: None,
@@ -2561,6 +2564,7 @@ impl PrintC {
         self.local_name_aliases.clear();
         self.local_name_standalones.clear();
         self.declared_locals.clear();
+        self.declared_entry = Some(fd.get_address().clone());
         self.pointer_decls.clear();
         self.begin_pointer_record(fd);
         // (kuna `signedness`) Round the declared signedness of this function's
@@ -3773,6 +3777,11 @@ impl PrintC {
     /// (kuna) The locals the last printed document declared.
     pub fn declared_locals(&self) -> &[DeclaredLocal] {
         &self.declared_locals
+    }
+
+    /// (kuna) The entry of the function the last printed document is of.
+    pub fn declared_entry(&self) -> Option<&Address> {
+        self.declared_entry.as_ref()
     }
 
     /// (kuna) A printer of its own that has printed `fd` with `arch`'s

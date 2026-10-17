@@ -23,7 +23,7 @@ use crate::context::HighVariableId;
 use crate::decompile_drive::VarInfo;
 use crate::funcdata::Funcdata;
 use crate::infra::architecture::Architecture;
-use crate::printc::PrintC;
+use crate::printc::{DeclaredLocal, PrintC};
 
 /// Is `high` already reported as part of the frame: no storage but the address
 /// constants of a frame object, or a stack instance inside a reported frame row?
@@ -63,8 +63,22 @@ fn widest_instance(fd: &Funcdata, high: HighVariableId) -> i64 {
         .unwrap_or(0)
 }
 
-/// The rows for the locals `arch`'s printer declared for `fd` that are neither
-/// frame-resident nor already in `reported`, in declaration order.
+/// The declarations of the last document `print` printed, when it printed `fd`.
+fn declarations_of<'a>(print: &'a PrintC, fd: &Funcdata) -> &'a [DeclaredLocal] {
+    if print.declared_entry() != Some(fd.get_address()) {
+        return &[];
+    }
+    print.declared_locals()
+}
+
+/// Does `local` still name a high of `fd` the naming pass gave its base name?
+fn declares_high_of(fd: &Funcdata, local: &DeclaredLocal) -> bool {
+    fd.high_bank().get(local.high).and_then(|h| h.kuna_name()) == Some(local.base.as_str())
+}
+
+/// The rows for the locals `arch`'s printer declared for `fd` that are not
+/// already in `reported`, by name or by frame storage, in declaration order.
+/// Empty unless the printer's last document was `fd`.
 pub fn register_locals(arch: &Architecture, fd: &Funcdata, reported: &[VarInfo]) -> Vec<VarInfo> {
     let taken: HashSet<&str> = reported.iter().map(|v| v.name.as_str()).collect();
     let rows: Vec<(i64, i64)> = reported
@@ -72,9 +86,9 @@ pub fn register_locals(arch: &Architecture, fd: &Funcdata, reported: &[VarInfo])
         .filter_map(|v| v.stack_offset.map(|off| (off, off + v.size.max(1))))
         .collect();
     let stack_space = fd.get_scope_local().map(|scope| scope.get_space_id());
-    arch.print()
-        .declared_locals()
+    declarations_of(arch.print(), fd)
         .iter()
+        .filter(|local| declares_high_of(fd, local))
         .filter(|local| !taken.contains(local.name.as_str()))
         .filter(|local| !reported_in_frame(fd, local.high, stack_space, &rows))
         .map(|local| {
@@ -108,11 +122,11 @@ pub fn register_locals(arch: &Architecture, fd: &Funcdata, reported: &[VarInfo])
 pub struct DeclarationHighs(BTreeMap<String, Vec<HighVariableId>>);
 
 impl DeclarationHighs {
-    pub fn of(print: &PrintC) -> Self {
+    /// The declarations of `print`'s last document; empty unless it printed `fd`.
+    pub fn of(print: &PrintC, fd: &Funcdata) -> Self {
         let mut through = print.declared_through();
         DeclarationHighs(
-            print
-                .declared_locals()
+            declarations_of(print, fd)
                 .iter()
                 .map(|local| {
                     let mut highs = vec![local.high];
@@ -135,28 +149,5 @@ impl DeclarationHighs {
             }
         }
         out
-    }
-
-    /// The instruction addresses of the ops that define or read an instance of
-    /// the highs the declaration `name` covers.
-    pub fn op_addresses(&self, fd: &Funcdata, name: &str) -> Vec<u64> {
-        use kuna_num::opcodes::OpCode;
-        let mut out = BTreeSet::new();
-        for &high in self.0.get(name).into_iter().flatten() {
-            let Some(h) = fd.high_bank().get(high) else { continue };
-            for i in 0..h.num_instances() {
-                let Some(v) = fd.vbank().get(h.get_instance(i)) else { continue };
-                for op_id in v.get_def().into_iter().chain(v.descend_iter()) {
-                    let Some(op) = fd.obank().get(op_id) else { continue };
-                    if matches!(op.code(), OpCode::CPUI_MULTIEQUAL | OpCode::CPUI_INDIRECT) {
-                        continue;
-                    }
-                    if op.get_addr().get_space().is_some() {
-                        out.insert(op.get_addr().get_offset());
-                    }
-                }
-            }
-        }
-        out.into_iter().collect()
     }
 }

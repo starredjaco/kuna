@@ -2087,24 +2087,16 @@ impl CodeProvenance {
         variables: &mut [VarInfo],
     ) -> Vec<BTreeSet<u64>> {
         let mut declarations = None;
-        let op_level = std::env::var_os("KUNA_REGLOCALS_OPS").is_some();
         variables
             .iter_mut()
             .map(|variable| {
-                if variable.kind() == "register" {
-                    let declarations = declarations
-                        .get_or_insert_with(|| crate::kuna_reglocals::DeclarationHighs::of(arch.print()));
-                    let refs = declarations.varrefs(fd, &variable.name);
-                    let evidence = self.evidence_for_refs(&refs);
-                    variable.line_numbers = evidence.line_numbers;
-                    variable.addresses = if op_level {
-                        declarations.op_addresses(fd, &variable.name)
-                    } else {
-                        evidence.addresses
-                    };
-                    return refs;
-                }
-                let refs = self.variable_varrefs(fd, variable);
+                let refs = if variable.kind() == "register" {
+                    declarations
+                        .get_or_insert_with(|| crate::kuna_reglocals::DeclarationHighs::of(arch.print(), fd))
+                        .varrefs(fd, &variable.name)
+                } else {
+                    self.variable_varrefs(fd, variable)
+                };
                 let evidence = self.evidence_for_refs(&refs);
                 variable.line_numbers = evidence.line_numbers;
                 variable.addresses = evidence.addresses;
