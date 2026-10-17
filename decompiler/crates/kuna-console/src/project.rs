@@ -839,7 +839,7 @@ pub fn decompile_pulled(
                             use_.address = prog.output_code_offset(use_.address);
                         }
                     }
-                    let var_refs = provenance.apply_to_variables_with_refs(&fd, &mut variables);
+                    let var_refs = provenance.apply_to_variables_with_refs(prog.arch(), &fd, &mut variables);
                     let detail = want_tokens.then(|| {
                         Box::new(crate::inspect::FuncDetail::resolve(
                             prog, &fd, &var_refs, &raw_tokens, &untrimmed, &code, &variables,
@@ -1915,7 +1915,8 @@ mod tests {
 
 /// The per-function variable comment block: `; arg:` lines (ABI order), then
 /// `; stack:` lines with the signed frame offset the decompiled name lives at.
-/// Empty when the function recovered no variables.
+/// A local outside the frame has no line. Empty when the function recovered no
+/// variables.
 pub(crate) fn var_header_lines(r: &FuncResult) -> String {
     let mut out = String::new();
     emit_var_header(r, &mut out);
@@ -1927,19 +1928,15 @@ fn emit_var_header(r: &FuncResult, out: &mut String) {
         out.push_str(&format!("; arg:   {} ({})\n", v.name, v.type_name));
     }
     for v in r.variables.iter().filter(|v| !v.is_param) {
-        match v.stack_offset {
-            Some(off) => {
-                let sign = if off < 0 { '-' } else { '+' };
-                out.push_str(&format!(
-                    "; stack: {} @ [stack{}0x{:x}] ({})\n",
-                    v.name,
-                    sign,
-                    off.unsigned_abs(),
-                    v.type_name
-                ));
-            }
-            None => out.push_str(&format!("; stack: {} ({})\n", v.name, v.type_name)),
-        }
+        let Some(off) = v.stack_offset else { continue };
+        let sign = if off < 0 { '-' } else { '+' };
+        out.push_str(&format!(
+            "; stack: {} @ [stack{}0x{:x}] ({})\n",
+            v.name,
+            sign,
+            off.unsigned_abs(),
+            v.type_name
+        ));
     }
 }
 
