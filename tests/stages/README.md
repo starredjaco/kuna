@@ -1063,3 +1063,8 @@ or as a register its body only stores. The wrapper still takes the pointer in
 `r0` or `rdi` and passes it on, because those conventions fill float and core
 argument registers apart. Before, it printed `bits_tail(void)` and
 `sst_tail(void)` and passed nothing, with one pass.
+
+`kuna-sve-xor-three.xml` checks the destructive SVE2 `EOR3` operand order,
+the three-input XOR reaching a predicated store, and the scalar return after
+it. Repeating a source preserves the old destination. The neighboring
+unallocated encoding still stops its function.

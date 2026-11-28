@@ -253,6 +253,12 @@ encoding decodes and disassembles as before, and `FCVTZS` and `FCVTZU` lift
 to the same p-code. This is a SLEIGH correctness repair, without an inference
 option.
 
+The unpredicated SVE2 `EOR3 Zdn.D, Zdn.D, Zm.D, Zk.D` reads the old
+destination and both other Z registers, even when register numbers coincide.
+It lifts to two bitwise XORs over the full Z register in the language model.
+The model gives each Z register 32 bytes. It does not vary that width with the
+hardware vector length.
+
 The AArch64 sign-extending byte and halfword loads with a `W` destination
 (`ldrsb`, `ldrsh`, `ldursb`, `ldursh`, `ldtrsb` and `ldtrsh`, in every
 addressing form) sign-extend the loaded value to 32 bits and zero bits 63:32

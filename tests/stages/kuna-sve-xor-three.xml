@@ -1,0 +1,53 @@
+<decompilertest>
+<binaryimage arch="AARCH64:LE:64:v8A:default">
+<!--
+  GNU as, .arch armv8.5-a+sve2, .text
+  mix:
+    ptrue p0.b
+    ld1b {z0.b}, p0/z, [x0]
+    ld1b {z1.b}, p0/z, [x1]
+    ld1b {z2.b}, p0/z, [x2]
+    eor3 z0.d, z0.d, z1.d, z2.d
+    st1b {z0.b}, p0, [x0]
+    mov w0, #7
+    ret
+  reserved:
+    .inst 0x04a13840
+    ret
+  cancel:
+    ptrue p0.b
+    ld1b {z31.b}, p0/z, [x1]
+    eor3 z31.d, z31.d, z17.d, z17.d
+    st1b {z31.b}, p0, [x0]
+    ret
+  The word at reserved changes bit 23 of the EOR3 in mix.
+  With opc=10 and o2=0 the SVE ternary bitwise table leaves it unallocated.
+-->
+<bytechunk space="ram" offset="0x1000" readonly="true">
+e0e3182500a000a421a000a442a000a44038210400e000e4e0008052c0035fd6
+4038a104c0035fd6
+e0e318253fa000a43f3a31041fe000e4c0035fd6
+</bytechunk>
+<symbol space="ram" offset="0x1000" name="mix"/>
+<symbol space="ram" offset="0x1020" name="reserved"/>
+<symbol space="ram" offset="0x1028" name="cancel"/>
+</binaryimage>
+<script>
+  <com>lo fu mix</com>
+  <com>decompile</com>
+  <com>print C</com>
+  <com>lo fu cancel</com>
+  <com>decompile</com>
+  <com>print C</com>
+  <com>lo fu reserved</com>
+  <com>decompile</com>
+  <com>print C</com>
+  <com>disassemble 0x1010 0x1014</com>
+  <com>quit</com>
+</script>
+<stringmatch name="SVE XOR: repeats the destination and names both other sources in encoded order" min="1" max="1">eor3\s+z0\.D, z0\.D, z1\.D, z2\.D</stringmatch>
+<stringmatch name="SVE XOR: stores the XOR of all three loaded vectors" min="1" max="1">SVE_st1b\([^,]+ \^ [^,]+ \^ SVE_ld1b\([^,]+,[^,]+,a2,0\),[^,]+,a0,0\);</stringmatch>
+<stringmatch name="SVE XOR: reaches the return after the store" min="1" max="1">return 7;</stringmatch>
+<stringmatch name="SVE XOR: only the unallocated word truncates its function" min="1" max="1">halt_baddata\(\);</stringmatch>
+<stringmatch name="SVE XOR: equal sources cancel and the old destination reaches memory" min="1" max="1">SVE_st1b\(SVE_ld1b\([^,]+,[^,]+,a1,0\),[^,]+,a0,0\);</stringmatch>
+</decompilertest>

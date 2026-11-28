@@ -1,0 +1,8 @@
+# eor3_z_zzz: EOR3 (vectors, unpredicated) variant SVE2
+# PATTERN x04203800/mask=xffe0fc00
+
+:eor3 Zd.D, Zd^".D", Zm.D, Zn.D
+is ImmS_ImmR_TestSet=1 & sve_b_2131=0x21 & sve_b_1015=0xe & Zd.D & Zd & Zm.D & Zn.D
+{
+	Zd.D = (Zd ^ Zm.D) ^ Zn.D;
+}

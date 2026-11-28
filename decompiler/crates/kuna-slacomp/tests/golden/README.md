@@ -109,6 +109,9 @@ It also includes the `W`-destination sign-extending loads (`ldrsb`, `ldrsh`,
 zero bits 63:32. The digest was regenerated with `slacomp`, which reproduces
 the previous AArch64 digest on the previous sources and reports the same
 compiler warnings on both.
+The SVE2 three-input XOR constructor also changes the AArch64 entry.
+Ghidra's native SLEIGH compiler reproduces the previous digest on the
+original sources, and `slacomp` agrees on the updated digest.
 
 The RISC-V entry includes the Zcmp/Zcmt constructors (`riscv.zc.sinc`), the
 `Zcmp` context bit and the `c.fsdsp` guard on it. Its digest was regenerated
