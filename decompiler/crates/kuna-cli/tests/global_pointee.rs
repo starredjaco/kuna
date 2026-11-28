@@ -4,6 +4,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const FUNCS: &str = "p_int,r_short,r_char,r_rec,r_long,r_void,w_long,w_short,m_call,m_join,m_write,m_loop,g_reread,g_alias,\
                      g_reload,g_write,g_before,g_diff,g_twice,g_old,g_branch";
@@ -77,7 +78,7 @@ fn a_pointer_stored_to_a_global_is_not_dereferenced_through_the_global() {
                     .arg(&exe)
                     .arg(&src)
                     .arg(&harness)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

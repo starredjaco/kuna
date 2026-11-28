@@ -456,7 +456,7 @@ fn check_emitted_c(code: &str, expression: &str) {
         .arg(&source)
         .arg("-o")
         .arg(&executable)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -955,7 +955,7 @@ void _start(void) {{
         .arg(&source)
         .arg("-o")
         .arg(&executable)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),

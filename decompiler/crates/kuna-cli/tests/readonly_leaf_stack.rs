@@ -55,7 +55,7 @@ fn conditional_store_remains_associated_with_its_return_load() {
         .arg(&source)
         .arg("-o")
         .arg(&object)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -67,7 +67,7 @@ fn conditional_store_remains_associated_with_its_return_load() {
         .arg(&object)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -92,7 +92,7 @@ fn conditional_store_remains_associated_with_its_return_load() {
                 .arg(&regenerated)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),
@@ -116,7 +116,7 @@ fn conditional_store_remains_associated_with_its_return_load() {
             .arg(&source)
             .arg("-o")
             .arg(&object)
-            .status()
+            .capped_status()
             .unwrap()
             .success());
         assert!(Command::new("ld")
@@ -124,7 +124,7 @@ fn conditional_store_remains_associated_with_its_return_load() {
             .arg(&object)
             .arg("-o")
             .arg(&binary)
-            .status()
+            .capped_status()
             .unwrap()
             .success());
         let (body, err, status) =

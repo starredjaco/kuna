@@ -65,7 +65,7 @@ fn complex_values_and_imported_exponential_round_trip() {
         .arg("-lm")
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -104,7 +104,7 @@ fn complex_values_and_imported_exponential_round_trip() {
                 .arg("-lm")
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),
@@ -137,7 +137,7 @@ fn pe_complex_values_keep_their_complete_types() {
             .arg("-lm")
             .arg("-o")
             .arg(&binary)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             output.status.success(),

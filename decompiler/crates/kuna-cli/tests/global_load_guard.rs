@@ -5,6 +5,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const ALL: [&str; 17] = [
     "d_loop", "d_branch", "d_short", "d_byte", "d_long", "d_index", "d_two", "d_iter", "d_pre", "d_cond",
@@ -64,7 +65,7 @@ fn a_store_before_a_pointer_load_is_kept_when_the_global_is_stored_again() {
                     .arg(&exe)
                     .arg(&src)
                     .arg(&harness)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

@@ -8,6 +8,7 @@ use kuna_console::ifacedecomp::{
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -28,7 +29,7 @@ fn go_available() -> bool {
 }
 
 fn run(command: &mut Command) {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(
         output.status.success(),
         "{command:?}:\n{}\n{}",
@@ -107,8 +108,8 @@ fn native_caller_and_callee_execute_with_both_result_words() {
     let source = common::scratch_file("gobyteextract-native", "go");
     let binary = common::scratch_file("gobyteextract-native", "elf");
     std::fs::write(&source, "package main\n//go:noinline\nfunc pair(x int64)(int64,int64){return x,x+1}\n//go:noinline\nfunc combine(x int64)int64{a,b:=pair(x);return a*3+b}\nvar result int64\nfunc main(){result=combine(41)}\n").unwrap();
-    run(Command::new("go")
-        .args(["build", "-trimpath", "-buildvcs=false", "-o"])
+    run(crate::common::linux_host::go_build()
+        .args(["-trimpath", "-buildvcs=false", "-o"])
         .arg(&binary)
         .arg(&source));
     let pair = native_body(&binary, "main.pair");

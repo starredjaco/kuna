@@ -77,7 +77,7 @@ int main(void) {{
     let c_path = common::scratch_file("narrow-register-inputs", "c");
     std::fs::write(&c_path, source).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for optimization in ["-O0", "-O2"] {
@@ -93,7 +93,7 @@ int main(void) {{
                 ])
                 .arg(&c_path)
                 .args(["-o", executable.to_str().unwrap()])
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),

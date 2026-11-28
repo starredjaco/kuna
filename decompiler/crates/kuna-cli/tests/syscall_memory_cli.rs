@@ -237,7 +237,7 @@ fn system_call_reloads_the_memory_it_may_replace() {
         assert!(text.contains("* 5"), "{text}");
         assert!(!text.contains("* 6"), "{text}");
         assert_eq!(text.matches("sink").count(), 2, "{text}");
-        if Command::new("cc").arg("--version").output().is_err() {
+        if Command::new("cc").arg("--version").capped_output().is_err() {
             continue;
         }
         let source = common::scratch_file("syscall-memory-roundtrip", "c");
@@ -250,7 +250,7 @@ fn system_call_reloads_the_memory_it_may_replace() {
             .arg(&source)
             .arg("-o")
             .arg(&binary)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             output.status.success(),
@@ -274,7 +274,7 @@ fn unclassified_image_and_off_keep_the_original_memory_model() {
 
 #[test]
 fn pointer_values_are_saved_before_each_memory_changing_call() {
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     for (function, expected) in [("pointer_before", 115), ("pointer_twice", 305)] {
@@ -289,7 +289,7 @@ fn pointer_values_are_saved_before_each_memory_changing_call() {
             .arg(&source)
             .arg("-o")
             .arg(&binary)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             output.status.success(),
@@ -304,7 +304,7 @@ fn pointer_values_are_saved_before_each_memory_changing_call() {
 fn the_kernel_observes_a_store_overwritten_after_the_call() {
     let text = decompile("write_global", true, None);
     assert_eq!(text.matches("sink =").count(), 2, "{text}");
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     let source = common::scratch_file("syscall-store-roundtrip", "c");
@@ -317,7 +317,7 @@ fn the_kernel_observes_a_store_overwritten_after_the_call() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -341,7 +341,7 @@ fn returned_lengths_are_saved_before_reading_the_final_buffer() {
             .collect();
         assert_eq!(calls.len(), 2, "{text}");
         assert!(calls.iter().all(|line| line.contains(" = ")), "{text}");
-        if Command::new("cc").arg("--version").output().is_err() {
+        if Command::new("cc").arg("--version").capped_output().is_err() {
             continue;
         }
         let source = common::scratch_file("syscall-returned-lengths", "c");
@@ -355,7 +355,7 @@ fn returned_lengths_are_saved_before_reading_the_final_buffer() {
                 .arg(&source)
                 .arg("-o")
                 .arg(&binary)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),

@@ -12,6 +12,7 @@ use common::process;
 
 use std::path::PathBuf;
 use std::process::Command;
+use crate::common::process::Capped;
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..").canonicalize().unwrap()
@@ -291,13 +292,13 @@ fn header_syntax_checks_with_cc() {
         &stub,
         format!(
             "#define main kuna_recovered_main\n#include \"{}\"\nint stub_entry(void){{return 0;}}\n",
-            h.display()
+            common::linux_host::c_path(&h)
         ),
     )
     .unwrap();
     let out = Command::new("cc")
         .args(["-std=c99", "-fsyntax-only", stub.to_str().unwrap()])
-        .output()
+        .capped_output()
         .expect("spawn cc");
     assert!(
         out.status.success(),
@@ -355,13 +356,13 @@ fn header_syntax_checks_when_a_type_shares_a_name_with_a_function() {
             &stub,
             format!(
                 "#define main kuna_recovered_main\n#include \"{}\"\nint stub_entry(void){{return 0;}}\n",
-                h.display()
+                common::linux_host::c_path(&h)
             ),
         )
         .unwrap();
         let out = Command::new("cc")
             .args(["-std=c99", "-fsyntax-only", stub.to_str().unwrap()])
-            .output()
+            .capped_output()
             .expect("spawn cc");
         assert!(
             out.status.success(),
@@ -1383,11 +1384,11 @@ fn streamed_worker_panic_loses_only_the_function_that_panicked() {
     for ((addr, error), (want_addr, _)) in got.iter().zip(&want) {
         assert_eq!(addr, want_addr, "the streamed function set moved");
         let expected = if addr == "\"0x400540\"" {
-            "\"worker chunk failed (worker exited: exit status: 101)\""
+            format!("\"worker chunk failed (worker exited: {})\"", common::PANIC_EXIT)
         } else {
-            "null"
+            "null".to_string()
         };
-        assert_eq!(error, expected, "record {addr}");
+        assert_eq!(error, &expected, "record {addr}");
     }
 
     let bodies = |d: &std::path::Path| -> Vec<String> {
@@ -1471,11 +1472,11 @@ fn a_streamed_seed_runs_in_a_worker_and_costs_only_its_own_record() {
     for ((addr, error), (want_addr, _)) in got.iter().zip(&want) {
         assert_eq!(addr, want_addr, "the streamed function set moved");
         let expected = if addr == &format!("\"{ENTRY}\"") {
-            "\"worker chunk failed (worker exited: exit status: 101)\""
+            format!("\"worker chunk failed (worker exited: {})\"", common::PANIC_EXIT)
         } else {
-            "null"
+            "null".to_string()
         };
-        assert_eq!(error, expected, "record {addr}");
+        assert_eq!(error, &expected, "record {addr}");
     }
 
     // The rest of the export is untouched: only the seed's own block is gone.
@@ -1746,15 +1747,16 @@ fn a_dead_writer_stops_a_run_at_jobs(jobs: &str) {
     let stopped_after = injected.elapsed();
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(!out.status.success(), "a dead writer must fail the run at --jobs {jobs}: {stderr}");
+    let reason = rename_onto_a_directory_error(&dir);
     assert!(
-        stderr.contains("mcount_x86_64.h") && stderr.contains("Is a directory"),
-        "the run must report the writer's own error, not a sentinel: {stderr}"
+        stderr.contains("mcount_x86_64.h") && stderr.contains(&reason),
+        "the run must report the writer's own error ({reason}), not a sentinel: {stderr}"
     );
 
     let status = std::fs::read_to_string(dir.join(".streaming")).unwrap();
     assert!(status.contains("\"phase\":\"failed\""), "no failed phase: {status}");
     assert!(
-        status.contains("mcount_x86_64.h") && status.contains("Is a directory"),
+        status.contains("mcount_x86_64.h") && status.contains(&reason),
         ".streaming must carry the real path and errno: {status}"
     );
     let done: usize = json_field(&status, "functions_done").parse().unwrap();
@@ -1794,6 +1796,18 @@ fn a_dead_writer_stops_a_run_at_jobs(jobs: &str) {
         );
     }
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// What the OS says when a file is renamed onto a directory, the failure
+/// [`block_with_a_directory`] stages: `Is a directory` on Linux, `Access is
+/// denied` (in the user's language) on Windows.
+fn rename_onto_a_directory_error(dir: &std::path::Path) -> String {
+    let (file, target) = (dir.join("rename-probe.tmp"), dir.join("rename-probe.dir"));
+    std::fs::write(&file, b"").unwrap();
+    std::fs::create_dir_all(&target).unwrap();
+    let err = std::fs::rename(&file, &target).expect_err("a file renamed onto a directory");
+    let _ = (std::fs::remove_file(&file), std::fs::remove_dir(&target));
+    err.to_string()
 }
 
 /// Replace `path` with a directory, retrying against the writer's own atomic

@@ -4,6 +4,7 @@
 //! `clang -O2 -c curlish.c -o curlish.o && ld.lld -shared -o curlish.so curlish.o`.
 use crate::common;
 use std::process::Command;
+use crate::common::process::Capped;
 
 fn fixture(name: &str) -> String {
     common::repo_root()
@@ -97,7 +98,7 @@ fn the_preprocessor_runs_only_when_asked() {
     assert!(c.contains("curl_easy_setopt(v1,0x2712,a0)"), "{c}");
     assert_eq!(stderr.lines().filter(|l| l.contains("macro.h:")).count(), 3, "{stderr}");
 
-    if !Command::new("cc").arg("--version").output().is_ok_and(|o| o.status.success()) {
+    if !Command::new("cc").arg("--version").capped_output().is_ok_and(|o| o.status.success()) {
         eprintln!("cc unavailable; skipping the --types-cpp half");
         return;
     }

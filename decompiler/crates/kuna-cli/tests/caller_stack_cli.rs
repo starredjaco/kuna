@@ -26,7 +26,7 @@ fn build_object() -> PathBuf {
         .arg(fixture("caller_stack_x86_64.S"))
         .arg("-o")
         .arg(&path)
-        .output()
+        .capped_output()
         .expect("assemble caller-stack fixture");
     assert!(
         output.status.success(),
@@ -69,7 +69,7 @@ fn decompile(path: &Path, name: &str) -> String {
 
 fn roundtrip(source: &Path, original: Option<&Path>) {
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for opt in ["-O0", "-O2"] {
@@ -84,7 +84,7 @@ fn roundtrip(source: &Path, original: Option<&Path>) {
             let output = command
                 .arg("-o")
                 .arg(&exe)
-                .output()
+                .capped_output()
                 .expect("compile caller-stack roundtrip");
             assert!(
                 output.status.success(),
@@ -209,7 +209,7 @@ fn typed_object_pointers_keep_the_caller_address() {
             "#include <stdlib.h>\ntypedef struct Payload {{ long value; char tag; }} Payload;\n{text}\nint main(void) {{ void *sp; __asm__ volatile(\"mov %%rsp,%0\" : \"=r\"(sp)); if ((void *)caller_first() != sp) abort(); }}\n"
         )).unwrap();
         for compiler in ["gcc", "clang"] {
-            if Command::new(compiler).arg("--version").output().is_err() {
+            if Command::new(compiler).arg("--version").capped_output().is_err() {
                 continue;
             }
             for opt in ["-O0", "-O2"] {
@@ -219,7 +219,7 @@ fn typed_object_pointers_keep_the_caller_address() {
                     .arg(&source)
                     .arg("-o")
                     .arg(&exe)
-                    .output()
+                    .capped_output()
                     .expect("compile typed caller address");
                 assert!(
                     output.status.success(),

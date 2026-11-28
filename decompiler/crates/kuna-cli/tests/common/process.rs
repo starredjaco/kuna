@@ -1,5 +1,6 @@
 //! Process handling shared by CLI integration tests.
 
+use super::linux_host::OnLinux;
 use std::collections::HashMap;
 use std::io::{self, ErrorKind, Read};
 use std::path::Path;
@@ -41,6 +42,7 @@ pub fn output_with_timeout(
     cap: Duration,
     poll_interval: Duration,
 ) -> Option<Output> {
+    super::linux_host::route(command);
     let child = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -50,7 +52,8 @@ pub fn output_with_timeout(
 }
 
 /// `Command::output`/`Command::status` with a kill-and-reap cap, so a child that
-/// never exits fails its test instead of stalling the suite.
+/// never exits fails its test instead of stalling the suite. On Windows a Linux
+/// toolchain or program runs in WSL ([`super::linux_host`]).
 pub trait Capped {
     fn capped_output(&mut self) -> io::Result<Output>;
     fn capped_status(&mut self) -> io::Result<ExitStatus>;
@@ -58,6 +61,7 @@ pub trait Capped {
 
 impl Capped for Command {
     fn capped_output(&mut self) -> io::Result<Output> {
+        super::linux_host::route(self);
         let child = self
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -68,6 +72,7 @@ impl Capped for Command {
     }
 
     fn capped_status(&mut self) -> io::Result<ExitStatus> {
+        super::linux_host::route(self);
         let mut child = self.spawn()?;
         reap(&mut child, DEFAULT_CAP, Duration::from_millis(5))
             .ok_or_else(|| timed_out(self, DEFAULT_CAP))
@@ -164,6 +169,7 @@ pub fn probe_sanitizer(compiler: &Path, flags: &[&str], cap: Duration) -> bool {
         && output_with_timeout(
             Command::new(&executable)
                 .env("ASAN_OPTIONS", "detect_leaks=0")
+                .on_linux()
                 .stdin(Stdio::null()),
             cap,
             Duration::from_millis(20),

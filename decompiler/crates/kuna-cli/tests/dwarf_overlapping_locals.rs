@@ -73,7 +73,7 @@ fn overlapping_debug_views_round_trip_call_writes() {
         .arg(&source)
         .arg("-o")
         .arg(&original)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -191,7 +191,7 @@ int main(void) {{
                 .arg(&original)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),

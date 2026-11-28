@@ -250,14 +250,14 @@ fn a_library_name_never_shadows_a_type_and_the_printed_c_runs() {
             let out = Command::new(cc)
                 .args(["-std=gnu11", "-w", level, "-c", "-o", reference.to_str().unwrap(), source.to_str().unwrap()])
                 .args(["-Dstamp=s_stamp", "-Dmain=fixture_main"])
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(out.status.success(), "{cc} {level} rejected the fixture source:\n{}", String::from_utf8_lossy(&out.stderr));
             let out = Command::new(cc)
                 .args(["-std=gnu11", "-w", level, "-o", exe.to_str().unwrap(), printed.to_str().unwrap()])
                 .arg(reference.to_str().unwrap())
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(out.status.success(), "{cc} {level} rejected the printed C:\n{}\n{text}", String::from_utf8_lossy(&out.stderr));
             let run = Command::new(&exe).env("TZ", "UTC").capped_output().expect("run the round trip");

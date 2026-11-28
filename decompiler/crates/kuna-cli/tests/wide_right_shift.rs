@@ -30,7 +30,7 @@ __attribute__((noinline)) uint64_t promoted_shift8(const uint8_t *p, unsigned k)
     )
     .unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for input_level in ["-O0", "-O2"] {
@@ -40,7 +40,7 @@ __attribute__((noinline)) uint64_t promoted_shift8(const uint8_t *p, unsigned k)
                 .arg(&source)
                 .arg("-o")
                 .arg(&binary)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compiled.status.success(),
@@ -62,7 +62,7 @@ __attribute__((noinline)) uint64_t promoted_shift8(const uint8_t *p, unsigned k)
                 .arg(&source)
                 .arg("-o")
                 .arg(&reference)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compiled.status.success(),
@@ -139,7 +139,7 @@ int main(void) {{
                     .arg(&reference)
                     .arg("-o")
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     compiled.status.success(),

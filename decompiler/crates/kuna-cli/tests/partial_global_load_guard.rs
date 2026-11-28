@@ -2,6 +2,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const FUNCTIONS: [&str; 13] = [
     "halves",
@@ -57,7 +58,7 @@ fn partial_global_writes_reach_aliasing_loads_before_whole_writes() {
                 .arg(&source)
                 .arg("-o")
                 .arg(&binary)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),
@@ -121,7 +122,7 @@ fn partial_global_writes_reach_aliasing_loads_before_whole_writes() {
                         .arg(&source)
                         .arg("-o")
                         .arg(&rebuilt)
-                        .output()
+                        .capped_output()
                         .unwrap();
                     assert!(
                         build.status.success(),
@@ -164,7 +165,7 @@ fn memory_and_call_roots_keep_the_existing_partial_store_behavior() {
                 .arg(&callback)
                 .arg("-o")
                 .arg(&binary)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),

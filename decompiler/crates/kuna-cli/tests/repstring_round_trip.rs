@@ -107,7 +107,7 @@ fn repeated_string_instructions_round_trip_through_the_printed_builtins() {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),

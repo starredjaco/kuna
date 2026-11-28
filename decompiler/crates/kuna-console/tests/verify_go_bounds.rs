@@ -70,8 +70,8 @@ fn go_bounds_and_division_checks_with_explicit_panic_control() {
     std::fs::write(dir.join("main.go"), SOURCE).unwrap();
     for arch in ["amd64", "arm64"] {
         let binary = dir.join(arch);
-        let build = Command::new("go")
-            .args(["build", "-ldflags=-s -w", "-o"])
+        let build = crate::common::linux_host::go_build()
+            .args(["-ldflags=-s -w", "-o"])
             .arg(&binary)
             .arg("main.go")
             .current_dir(&dir)

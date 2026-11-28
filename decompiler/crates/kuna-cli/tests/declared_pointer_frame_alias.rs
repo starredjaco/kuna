@@ -20,7 +20,7 @@ fn checked(command: &mut Command) -> Output {
 fn declared_pointer_writes_survive_a_restored_frame_base() {
     if !Command::new("clang")
         .arg("--version")
-        .output()
+        .capped_output()
         .is_ok_and(|output| output.status.success())
     {
         eprintln!("Clang unavailable; skipping i386 fixture");
@@ -96,7 +96,7 @@ fn declared_pointer_writes_survive_a_restored_frame_base() {
     for compiler in ["gcc", "clang"] {
         if !Command::new(compiler)
             .arg("--version")
-            .output()
+            .capped_output()
             .is_ok_and(|output| output.status.success())
         {
             continue;
@@ -157,7 +157,7 @@ fn a_normalized_declared_pointer_refutes_a_stale_unaliased_mark() {
     use kuna_decomp::varnode::varnode_flags;
     use std::rc::Rc;
 
-    if !Command::new("clang").arg("--version").output().is_ok_and(|o| o.status.success()) {
+    if !Command::new("clang").arg("--version").capped_output().is_ok_and(|o| o.status.success()) {
         eprintln!("Clang unavailable; skipping i386 fixture");
         return;
     }

@@ -214,7 +214,7 @@ fn check_contract(case: Case, header: &Path, producer_width: usize) {
 
 fn check_contracts(case: Case, header: &Path, producer_width: usize, names: &[&str]) {
     let source = common::scratch_file("callwide-header-widths", "c");
-    let mut checks = format!("#include \"{}\"\n", header.display());
+    let mut checks = format!("#include \"{}\"\n", common::linux_host::c_path(&header));
     let declarations = std::fs::read_to_string(header).expect("actual emitted declarations");
     let typed_callers = producer_width == 8 || !case.dwarf;
     let callers = if typed_callers { &CALLERS[..] } else { &[] };
@@ -286,7 +286,7 @@ fn check_contracts(case: Case, header: &Path, producer_width: usize, names: &[&s
         let result = Command::new(compiler)
             .args(["-std=gnu11", "-fsyntax-only"])
             .arg(&source)
-            .output()
+            .capped_output()
             .expect("check actual header integer widths");
         assert!(
             result.status.success(),

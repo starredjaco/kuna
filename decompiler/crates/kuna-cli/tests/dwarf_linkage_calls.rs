@@ -16,7 +16,7 @@ fn roundtrip(compiler: &str, extension: &str, source: &str, functions: &[&str], 
         .arg(&path)
         .arg("-o")
         .arg(&library)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -60,7 +60,7 @@ fn roundtrip(compiler: &str, extension: &str, source: &str, functions: &[&str], 
                 .arg(&library)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),
@@ -200,7 +200,7 @@ fn indirect_function_resolver_does_not_retype_its_plt_entry() {
         .arg(&source)
         .arg("-o")
         .arg(&library)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -235,7 +235,7 @@ fn local_linker_name_collision_does_not_retype_external_call() {
         .arg(&imported)
         .arg("-o")
         .arg(&library)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),

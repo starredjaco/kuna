@@ -103,7 +103,7 @@ fn check_selection_semantics(code: &str) {
         .arg(&source)
         .arg("-o")
         .arg(&executable)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),

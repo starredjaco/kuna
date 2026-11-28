@@ -115,7 +115,7 @@ fn corrected(data: &Funcdata, m: VarnodeId) -> Option<(VarnodeId, u32)> {
     if r0 != r1 {
         return None;
     }
-    let power = |c: u64| (c != 0 && c & (c + 1) == 0).then(|| c.trailing_ones()).filter(|&n| n <= 8 * sz as u32 - 2);
+    let power = |c: u64| (c != 0 && c & c.wrapping_add(1) == 0).then(|| c.trailing_ones()).filter(|&n| n <= 8 * sz as u32 - 2);
     let (x, add_slot, n) = if let Some(n) = power(k1.wrapping_sub(k0) & mask) {
         (in0, 1, n)
     } else {

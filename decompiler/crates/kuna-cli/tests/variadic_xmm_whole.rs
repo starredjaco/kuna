@@ -253,7 +253,7 @@ int main(void) {{
                 .args(["-std=gnu11", "-w", level, "-o"])
                 .arg(&exe)
                 .arg(&src)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),

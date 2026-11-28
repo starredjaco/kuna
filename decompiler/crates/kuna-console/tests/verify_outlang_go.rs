@@ -8,6 +8,7 @@ use kuna_console::ifacedecomp::{
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::linux_host::OnLinux;
 
 const FUNCTIONS: &[&str] = &[
     "add",
@@ -116,6 +117,9 @@ fn decompile(binary: &Path, names: &[&str], options: &[&str]) -> Vec<String> {
     code
 }
 fn run(command: &mut Command) {
+    run_on_host(command.on_linux());
+}
+fn run_on_host(command: &mut Command) {
     let output = command.output().unwrap();
     assert!(
         output.status.success(),
@@ -137,9 +141,11 @@ fn go_available() -> bool {
         Err(error) => panic!("go: {error}"),
     }
 }
+/// The parser is a helper, not a fixture, so it is built for and run on the
+/// host itself.
 fn parse(directory: &Path, code: &[String]) {
-    let parser = directory.join("parser");
-    run(Command::new("go")
+    let parser = directory.join(format!("parser{}", std::env::consts::EXE_SUFFIX));
+    run_on_host(Command::new("go")
         .args(["build", "-o"])
         .arg(&parser)
         .arg(fixture("parse.go")));
@@ -149,7 +155,7 @@ fn parse(directory: &Path, code: &[String]) {
         std::fs::write(&file, format!("package recovered\n{body}\n")).unwrap();
         check.arg(file);
     }
-    run(&mut check);
+    run_on_host(&mut check);
 }
 
 #[test]
@@ -271,8 +277,8 @@ fn native_go_uses_the_same_output_plane() {
     }
     let directory = scratch();
     let binary = &directory.join("native");
-    run(Command::new("go")
-        .args(["build", "-trimpath", "-buildvcs=false", "-o"])
+    run(crate::common::linux_host::go_build()
+        .args(["-trimpath", "-buildvcs=false", "-o"])
         .arg(&binary)
         .arg(fixture("output.go")));
     let names = [

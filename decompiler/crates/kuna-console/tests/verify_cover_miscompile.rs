@@ -25,6 +25,7 @@
 //!    the second select's value twice.
 
 use std::path::PathBuf;
+use crate::common::linux_host::OnLinux;
 use std::process::Command;
 
 use kuna_console::engine::bootstrap_from_object;
@@ -97,7 +98,7 @@ int main(void) {{
 "#)).unwrap();
     let mut checked = false;
     for compiler in ["gcc", "clang"] {
-        let available = match Command::new(compiler).arg("--version").output() {
+        let available = match Command::new(compiler).arg("--version").on_linux().output() {
             Ok(output) => {
                 assert!(output.status.success(), "{compiler} --version failed");
                 true
@@ -112,9 +113,9 @@ int main(void) {{
             let executable = source.with_extension(format!("{compiler}{}", &level[1..]));
             let output = Command::new(compiler)
                 .args(["-std=c11", level, "-Werror=int-conversion", "-Werror=incompatible-pointer-types"])
-                .arg(&source).arg("-o").arg(&executable).output().unwrap();
+                .arg(&source).arg("-o").arg(&executable).on_linux().output().unwrap();
             assert!(output.status.success(), "{}\n{code}", String::from_utf8_lossy(&output.stderr));
-            assert!(Command::new(&executable).status().unwrap().success(), "{code}");
+            assert!(Command::new(&executable).on_linux().status().unwrap().success(), "{code}");
             std::fs::remove_file(executable).unwrap();
             checked = true;
         }

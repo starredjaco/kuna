@@ -73,7 +73,7 @@ _sample:
             } else {
                 command.arg(&imports);
             }
-            let built = command.arg("-o").arg(output).output().unwrap();
+            let built = command.arg("-o").arg(output).capped_output().unwrap();
             assert!(
                 built.status.success(),
                 "{}",
@@ -88,7 +88,7 @@ _sample:
             .arg(&source)
             .arg("-o")
             .arg(&binary)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             built.status.success(),
@@ -183,7 +183,7 @@ _sample:
                         .arg(&driver)
                         .arg("-o")
                         .arg(&executable)
-                        .output()
+                        .capped_output()
                         .unwrap();
                     assert!(
                         built.status.success(),
@@ -215,7 +215,7 @@ fn format_specializations_do_not_become_global_function_declarations() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -271,7 +271,7 @@ int main(void) {{
                 .arg(&driver)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -301,7 +301,7 @@ fn selected_callees_and_array_returns_keep_the_header_valid() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
     let stem = binary.file_name().unwrap().to_str().unwrap();
@@ -322,7 +322,7 @@ fn selected_callees_and_array_returns_keep_the_header_valid() {
         let checked = Command::new("clang")
             .args(["-std=c11", "-fsyntax-only", "-x", "c"])
             .arg(&header_path)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(checked.status.success(), "{header}\n{}", String::from_utf8_lossy(&checked.stderr));
     }

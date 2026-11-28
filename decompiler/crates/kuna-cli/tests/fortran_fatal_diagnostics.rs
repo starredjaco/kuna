@@ -2,6 +2,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 #[test]
 fn fatal_runtime_diagnostics_have_no_fallthrough() {
@@ -24,7 +25,7 @@ fn fatal_runtime_diagnostics_have_no_fallthrough() {
     }
     std::fs::write(&source, code).unwrap();
     let output = Command::new("gcc").args(["-O0", "-fPIC", "-shared"])
-        .arg(&source).arg("-o").arg(&binary).output().unwrap();
+        .arg(&source).arg("-o").arg(&binary).capped_output().unwrap();
     assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
     for (i, name) in names.iter().enumerate() {
         let (body, err, status) = common::run_kuna(&["decompile", binary.to_str().unwrap(), &format!("probe{i}")]);

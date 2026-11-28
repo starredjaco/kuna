@@ -4,6 +4,7 @@ use super::*;
 #[test]
 fn integer_carriers_and_cast_results_assign_to_pointer_members() {
     use crate::dtype::{DatatypeKind, TypeField};
+    use super::super::linux_host::OnLinux;
     use std::process::Command;
     for size in [4, 8] {
         for opcode in [OpCode::CPUI_COPY, OpCode::CPUI_CAST] {
@@ -86,7 +87,7 @@ fn integer_carriers_and_cast_results_assign_to_pointer_members() {
                 format!("({word_name})(__UINTPTR_TYPE__)(bytes+13)")
             };
             let program = format!("typedef struct {{ {word_name} length; unsigned char *slot; }} Frame;\nstatic Frame emit({argument} value) {{ Frame frame; frame.length=0; {statement} return frame; }}\nint main(void) {{ unsigned char bytes[32]; return emit({call}).slot != bytes+13; }}\n");
-            if Command::new("clang").arg("--version").output().is_err() {
+            if Command::new("clang").arg("--version").on_linux().output().is_err() {
                 continue;
             }
             let nonce = std::time::SystemTime::now()
@@ -109,6 +110,7 @@ fn integer_carriers_and_cast_results_assign_to_pointer_members() {
                     .arg(&source)
                     .arg("-o")
                     .arg(&output)
+                    .on_linux()
                     .output()
                     .unwrap();
                 assert!(
@@ -117,7 +119,7 @@ fn integer_carriers_and_cast_results_assign_to_pointer_members() {
                     String::from_utf8_lossy(&built.stderr)
                 );
                 if size == 8 {
-                    assert!(Command::new(&output).status().unwrap().success());
+                    assert!(Command::new(&output).on_linux().status().unwrap().success());
                 }
                 std::fs::remove_file(output).unwrap();
             }

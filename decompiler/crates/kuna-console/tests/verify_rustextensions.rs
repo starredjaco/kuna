@@ -8,13 +8,14 @@ use kuna_console::ifacedecomp::{
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 
 fn run(command: &mut Command) -> Output {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(
         output.status.success(),
         "{command:?}:\n{}\n{}",

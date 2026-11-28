@@ -2785,7 +2785,7 @@ fn a_float_in_a_general_register_keeps_its_integer_uses_round_trip() {
                 .args(["-std=gnu11", "-w", "-fno-pie", "-no-pie", level])
                 .args(common::CC_GCC15_DEMOTE)
                 .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(
                 compiled.status.success(),
@@ -2826,7 +2826,7 @@ fn compile_and_run_each(tag: &str, src: &str) -> Vec<(String, String)> {
             .args(["-std=gnu11", "-w", "-Werror=int-conversion", "-Werror=implicit-function-declaration", "-o"])
             .arg(&exe)
             .arg(&file)
-            .output()
+            .capped_output()
             .expect("spawn the compiler");
         assert!(built.status.success(), "{cc} rejected the printed C:\n{}\n{src}", String::from_utf8_lossy(&built.stderr));
         let run = Command::new(&exe).capped_output().expect("run the round trip");
@@ -3177,7 +3177,7 @@ fn compile_pair_and_run_each(tag: &str, lib: &str, main: &str) -> Vec<(String, S
             .arg(&exe)
             .arg(&main_file)
             .arg(&lib_file)
-            .output()
+            .capped_output()
             .expect("spawn the compiler");
         assert!(built.status.success(), "{cc} rejected the printed C:\n{}\n{lib}", String::from_utf8_lossy(&built.stderr));
         let run = Command::new(&exe).capped_output().expect("run the round trip");
@@ -3968,7 +3968,7 @@ fn a_float_pointee_keeps_the_callers_integer_stores_round_trip() {
         let cc = Command::new("cc")
             .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
             .args(common::CC_GCC15_DEMOTE)
-            .output()
+            .capped_output()
             .expect("spawn cc");
         assert!(
             cc.status.success(),
@@ -4747,7 +4747,7 @@ fn jobs_a_worker_panic_loses_only_the_function_that_panicked() {
         assert_only_lost_differ(&serial, &got, &[name]);
         let lost = json_records(&got).into_iter().find(|r| record_name(r) == name).unwrap();
         assert!(
-            lost.contains("\"error\": \"worker chunk failed (worker exited: exit status: 101)\""),
+            lost.contains(&format!("\"error\": \"worker chunk failed (worker exited: {})\"", common::PANIC_EXIT)),
             "{name} must carry its own crash:\n{lost}"
         );
         assert_eq!(
@@ -4973,7 +4973,7 @@ fn jobs_rerunning_a_dead_worker_never_loops() {
             assert!(r.contains(&format!("\"error\": \"{prefix}")), "{}:\n{r}", record_name(r));
         }
     };
-    let crashed = "worker chunk failed (worker exited: exit status: 101)";
+    let crashed = &format!("worker chunk failed (worker exited: {})", common::PANIC_EXIT);
     let panics = |stderr: &str| stderr.matches("KUNA_JOBS_FAULT: injected panic").count();
 
     let (got, stderr, ok) = fauxware_pooled_with_fault("spawn:0", "0");
@@ -5048,7 +5048,7 @@ fn jobs_a_worker_that_dies_in_its_load_loses_nothing() {
     assert_eq!(recovered_count(&stderr), Some(total), "{stderr}");
     assert!(!stderr.contains("have no result"), "nothing was lost:\n{stderr}");
 
-    let aborted = "\"error\": \"worker chunk failed (worker exited: signal: 6";
+    let aborted = &format!("\"error\": \"worker chunk failed (worker exited: {}", common::ABORT_EXIT);
     let (got, stderr, ok) = fauxware_pooled_with_fault("load-abort:*", "0");
     assert!(!ok, "{stderr}");
     let records = json_records(&got);
@@ -5452,7 +5452,7 @@ fn a_sign_contested_synthesized_field_round_trips_through_the_printed_c() {
     let cc = Command::new("cc")
         .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
         .args(common::CC_GCC15_DEMOTE)
-        .output()
+        .capped_output()
         .expect("spawn cc");
     assert!(cc.status.success(), "the printed f did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
     let run = process::required_output(&mut Command::new(&exe));
@@ -5511,7 +5511,7 @@ fn a_float_and_integer_union_field_round_trips_through_the_printed_c() {
     let cc = Command::new("cc")
         .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
         .args(common::CC_GCC15_DEMOTE)
-        .output()
+        .capped_output()
         .expect("spawn cc");
     assert!(cc.status.success(), "the printed vread did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
     let run = process::required_output(&mut Command::new(&exe));
@@ -5568,7 +5568,7 @@ fn a_zero_extended_narrow_load_round_trips_through_the_printed_c() {
         let cc = Command::new("cc")
             .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
             .args(common::CC_GCC15_DEMOTE)
-            .output()
+            .capped_output()
             .expect("spawn cc");
         assert!(cc.status.success(), "the printed f did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
         let run = process::required_output(&mut Command::new(&exe));
@@ -5674,7 +5674,7 @@ int main(void) {
                 let out = Command::new(cc)
                     .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                     .args(common::CC_GCC15_DEMOTE)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),
@@ -5853,7 +5853,7 @@ int main(void) {
                 if gcc_o2 {
                     cmd.arg("-DNO_PCTX");
                 }
-                let out = cmd.arg(src.to_str().unwrap()).output().expect("spawn the C compiler");
+                let out = cmd.arg(src.to_str().unwrap()).capped_output().expect("spawn the C compiler");
                 assert!(
                     out.status.success(),
                     "{cc} rejected the printed C ({fixture}, option {opt}):\n{}",
@@ -6020,7 +6020,7 @@ int main(void) {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", level, "-w", "-Wno-error=int-conversion", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
@@ -6274,7 +6274,7 @@ int main(void) {
                             "-std=gnu11", level, "-w", "-fno-strict-aliasing", "-fwrapv", "-Wno-error=int-conversion", "-Werror=incompatible-pointer-types",
                             "-o", exe.to_str().unwrap(), src.to_str().unwrap(),
                         ])
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
@@ -6586,7 +6586,7 @@ int main(void) {
                         .args(["-std=gnu11", "-w", "-Wno-error=int-conversion", level])
                         .args(common::CC_GCC15_DEMOTE)
                         .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
@@ -6798,7 +6798,7 @@ int main(void) {
                         .args(["-std=gnu11", "-w", "-Wno-error=int-conversion", level])
                         .args(common::CC_GCC15_DEMOTE)
                         .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
@@ -7021,7 +7021,7 @@ fn a_pointer_plus_whole_elements_round_trips_through_the_printed_c() {
             let cc = Command::new("cc")
                 .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), c.to_str().unwrap()])
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn cc");
             assert!(
                 cc.status.success(),
@@ -7147,7 +7147,7 @@ fn a_variable_index_and_a_byte_pointer_difference_round_trip_through_the_printed
             let cc = Command::new("cc")
                 .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), c.to_str().unwrap()])
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn cc");
             assert!(
                 cc.status.success(),
@@ -7271,7 +7271,7 @@ fn an_enum_element_keeps_the_integer_form_and_round_trips() {
             let cc = Command::new("cc")
                 .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), c.to_str().unwrap()])
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn cc");
             assert!(
                 cc.status.success(),
@@ -7439,7 +7439,7 @@ fn check_globalref_round_trip(run_native: bool) {
                 .args(&args)
                 .args(common::CC_GCC15_DEMOTE)
                 .current_dir(&out)
-                .output()
+                .capped_output()
                 .expect("spawn cc");
             assert!(
                 built.status.success(),
@@ -7548,7 +7548,7 @@ fn a_call_in_a_short_circuit_operand_round_trips_through_the_printed_c() {
         let cc = Command::new("cc")
             .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
             .args(common::CC_GCC15_DEMOTE)
-            .output()
+            .capped_output()
             .expect("spawn cc");
         assert!(cc.status.success(), "{name}: the printed C did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
         let run = process::required_output(&mut Command::new(&exe));
@@ -7645,7 +7645,7 @@ int main(void) {
     let cc = Command::new("cc")
         .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
         .args(common::CC_GCC15_DEMOTE)
-        .output()
+        .capped_output()
         .expect("spawn cc");
     assert!(cc.status.success(), "the printed functions did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
     let run = process::required_output(&mut Command::new(&exe));
@@ -7742,7 +7742,7 @@ int main(void) {
     let cc = Command::new("cc")
         .args(["-std=gnu11", "-w", "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
         .args(common::CC_GCC15_DEMOTE)
-        .output()
+        .capped_output()
         .expect("spawn cc");
     assert!(cc.status.success(), "the printed functions did not compile:\n{}", String::from_utf8_lossy(&cc.stderr));
     let run = process::required_output(&mut Command::new(&exe));
@@ -8104,7 +8104,7 @@ int main(void) {
                         .args(["-std=gnu11", "-w", "-Wno-error=int-conversion", level])
                         .args(common::CC_GCC15_DEMOTE)
                         .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
@@ -8357,7 +8357,7 @@ fn check_elemptr_round_trip(run_native: bool) {
                     .args(&args)
                     .args(common::CC_GCC15_DEMOTE)
                     .current_dir(&out)
-                    .output()
+                    .capped_output()
                     .expect("spawn cc");
                 assert!(
                     built.status.success(),
@@ -8522,7 +8522,7 @@ fn check_narrowload_round_trip(
                     ])
                     .args(common::CC_GCC15_DEMOTE)
                     .current_dir(&out)
-                    .output()
+                    .capped_output()
                     .expect("spawn cc");
                 assert!(
                     built.status.success(),
@@ -8767,7 +8767,7 @@ int main(void) {
                 let out = Command::new(cc)
                     .args(["-std=gnu11", "-w", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                     .args(common::CC_GCC15_DEMOTE)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),
@@ -8869,7 +8869,7 @@ fn a_value_read_by_a_sign_sensitive_op_is_not_re_read_from_a_global() {
                 .args(&args)
                 .args(common::CC_GCC15_DEMOTE)
                 .args(["-o", exe.to_str().unwrap(), printed.to_str().unwrap(), harness.to_str().unwrap()])
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(
                 out.status.success(),
@@ -8984,7 +8984,7 @@ fn bejoin_round_trip(label: &str, src_text: &str, printed: &str) {
                 .args(["-std=gnu11", "-w", "-fwrapv", "-Wno-error=int-conversion", level])
                 .args(common::CC_GCC15_DEMOTE)
                 .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(
                 out.status.success(),

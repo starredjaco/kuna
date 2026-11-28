@@ -3,7 +3,7 @@ use std::{fs, process::Command};
 use crate::common::process::Capped;
 
 fn check(target: &str, windows: bool, integer_member: bool) {
-    if Command::new("clang").arg("--version").output().is_err() {
+    if Command::new("clang").arg("--version").capped_output().is_err() {
         return;
     }
     let dir = common::scratch_file("unaligned-word-load", "dir");
@@ -40,7 +40,7 @@ __attribute__((naked)) unsigned int choose(unsigned int index, unsigned int odd)
         .arg(&source)
         .arg("-o")
         .arg(&object)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -116,7 +116,7 @@ __attribute__((naked)) unsigned int choose(unsigned int index, unsigned int odd)
             "#define {name} regenerated_transfer\n#define {} regenerated_scatter\n#define {} regenerated_choose\n#include \"{}\"\n",
             if windows { "_scatter" } else { "scatter" },
             if windows { "_choose" } else { "choose" },
-            export.join("fixture.o.c").display()
+            common::linux_host::c_path(export.join("fixture.o.c"))
         ),
     )
     .unwrap();
@@ -178,7 +178,7 @@ int main(void) {
             .arg(&wrapper)
             .arg("-o")
             .arg(&output)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             compiled.status.success(),
@@ -194,7 +194,7 @@ int main(void) {
                 .arg(&driver)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 linked.status.success(),

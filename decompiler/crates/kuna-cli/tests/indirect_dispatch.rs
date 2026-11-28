@@ -1,6 +1,7 @@
 //! Replay original computed-dispatch effects, independent of printed spellings.
 use crate::common;
 use std::process::Command;
+use crate::common::process::Capped;
 
 fn decompile(
     image: &std::path::Path,
@@ -103,7 +104,7 @@ fn replay_passes(code: &str, steps: usize, wide: bool, join: bool, return_shift:
         if wide {
             compile.arg("-fwrapv");
         }
-        let built = compile.arg(&source).arg(&driver).arg("-o").arg(&executable).output().unwrap();
+        let built = compile.arg(&source).arg(&driver).arg("-o").arg(&executable).capped_output().unwrap();
         if !built.status.success() {
             passed = false;
             break;

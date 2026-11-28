@@ -53,7 +53,7 @@ _sample:
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -110,7 +110,7 @@ int main(void) {
                 .arg(&regenerated)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -174,7 +174,7 @@ static LONG CALLBACK exception_handler(EXCEPTION_POINTERS *e) {
             .arg(&original)
             .arg("-o")
             .arg(&original_exe)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             built.status.success(),
@@ -217,7 +217,7 @@ fn windows_sysroot_available(compiler: &str) -> bool {
     let status = Command::new(compiler)
         .args(["--target=i686-w64-windows-gnu", "-fsyntax-only"])
         .arg(&probe)
-        .output()
+        .capped_output()
         .map(|output| output.status.success())
         .unwrap_or(false);
     std::fs::remove_file(probe).unwrap();

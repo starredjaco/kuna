@@ -55,6 +55,14 @@ unusable specs are failures, not skips; use the worktree symlink procedure below
 when reusing another checkout's build. Tests for optional external toolchains may
 skip when the tool is absent, but a failed build with an installed tool is an error.
 
+The C round trips check printed C by building and running it with a Linux toolchain,
+because the fixtures are Linux binaries (an 8-byte `long`, the System V ABI, glibc). On
+Windows kuna still runs natively, but the test helpers (`tests/common/linux_host.rs`) run
+`cc`/`gcc`/`clang`/`gfortran`, the Linux and MinGW cross tools, and every ELF a round trip
+built inside WSL. Install the toolchain there once, e.g.
+`sudo apt-get install build-essential clang lld gfortran gcc-mingw-w64`; without WSL
+those tests skip. `KUNA_TEST_WSL_DISTRO` picks a distribution other than the default.
+
 Python tooling unit tests run with `make test-tools` and are also required by CI.
 They use temporary state directories, not the live pipeline inventory.
 

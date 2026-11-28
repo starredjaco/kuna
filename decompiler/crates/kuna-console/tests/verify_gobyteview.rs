@@ -8,6 +8,7 @@ use kuna_console::ifacedecomp::{
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -71,7 +72,7 @@ fn go_available() -> bool {
 }
 
 fn run(command: &mut Command) {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(
         output.status.success(),
         "{command:?}:\n{}\n{}",
@@ -144,8 +145,8 @@ fn native_go_result_carrier_executes_without_a_signature_assertion() {
     let source = common::scratch_file("gobyteview-native", "go");
     let binary = common::scratch_file("gobyteview-native", "elf");
     std::fs::write(&source, "package main\n//go:noinline\nfunc pair(x int64)(int64,int64){return x,x+1}\nvar a,b int64\nfunc main(){a,b=pair(41)}\n").unwrap();
-    run(Command::new("go")
-        .args(["build", "-trimpath", "-buildvcs=false", "-o"])
+    run(crate::common::linux_host::go_build()
+        .args(["-trimpath", "-buildvcs=false", "-o"])
         .arg(&binary)
         .arg(&source));
     execute_body(&decompile(&binary, "main.pair", true), "pair");

@@ -8,13 +8,14 @@ use kuna_console::ifacedecomp::{
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 
 fn run(command: &mut Command) -> Output {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(
         output.status.success(),
         "{command:?}:\n{}\n{}",
@@ -71,10 +72,14 @@ fn widening_precedes_arithmetic_and_keeps_narrow_overflow() {
         }
         Err(error) => panic!("go: {error}"),
     }
+    if !common::linux_host::runs_programs() {
+        eprintln!("no Linux host runs the built fixture; external execution check skipped");
+        return;
+    }
     let source = root().join("tests/fixtures/go-extensions/extensions.go");
     let native = common::scratch_file("goextensions-native", "elf");
-    run(Command::new("go")
-        .args(["build", "-trimpath", "-buildvcs=false", "-o"])
+    run(crate::common::linux_host::go_build()
+        .args(["-trimpath", "-buildvcs=false", "-o"])
         .arg(&native)
         .arg(&source));
     let expected = run(&mut Command::new(&native));
@@ -103,8 +108,8 @@ fn widening_precedes_arithmetic_and_keeps_narrow_overflow() {
     let code = common::scratch_file("goextensions-emitted", "go");
     let binary = common::scratch_file("goextensions-execute", "elf");
     std::fs::write(&code, &emitted).unwrap();
-    run(Command::new("go")
-        .args(["build", "-o"])
+    run(crate::common::linux_host::go_build()
+        .args(["-o"])
         .arg(&binary)
         .arg(&code));
     let actual = run(&mut Command::new(binary));

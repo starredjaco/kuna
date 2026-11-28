@@ -125,7 +125,7 @@ fn every_build_declares_the_record_and_prints_c() {
                 .args(["-std=gnu11", "-fsyntax-only", "-fno-strict-aliasing"])
                 .args(common::CC_GCC15_DEMOTE)
                 .arg(&source)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compiled.status.success(),
@@ -184,7 +184,7 @@ int main(void) {{
                 .arg(&source)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compiled.status.success(),

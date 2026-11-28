@@ -5,6 +5,7 @@ use object::{
     Architecture, BinaryFormat, Endianness, SectionKind, SymbolFlags, SymbolKind, SymbolScope,
 };
 use std::process::Command;
+use common::process::Capped;
 
 fn fixture() -> Vec<u8> {
     let mut obj = Object::new(BinaryFormat::Elf, Architecture::Arm, Endianness::Little);
@@ -223,7 +224,7 @@ fn guarded_registers_compile_and_match_the_model_at_o0_and_o2() {
             .arg(&uncertain)
             .arg("-o")
             .arg(uncertain.with_extension("o"))
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             !output.status.success(),

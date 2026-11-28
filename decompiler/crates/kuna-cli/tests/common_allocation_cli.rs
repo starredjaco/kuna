@@ -3,6 +3,7 @@ use object::{
     write, Architecture, BinaryFormat, Endianness, RelocationFlags, SymbolFlags, SymbolKind,
     SymbolScope,
 };
+use crate::common::process::Capped;
 
 #[test]
 fn distinct_common_objects_do_not_turn_a_seven_return_into_zero() {
@@ -69,7 +70,7 @@ fn distinct_common_objects_do_not_turn_a_seven_return_into_zero() {
 #[test]
 fn common_globals_are_declared_in_recompilable_project_headers() {
     use std::{fs, process::Command};
-    if Command::new("clang").arg("--version").output().is_err() {
+    if Command::new("clang").arg("--version").capped_output().is_err() {
         return;
     }
     let dir = common::scratch_file("common-project-header", "dir");
@@ -92,7 +93,7 @@ fn common_globals_are_declared_in_recompilable_project_headers() {
             .arg(&source)
             .arg("-o")
             .arg(&object)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             built.status.success(),
@@ -119,7 +120,7 @@ fn common_globals_are_declared_in_recompilable_project_headers() {
             .arg(export.join(format!("{target}.o.c")))
             .arg("-o")
             .arg(dir.join(format!("{target}-regenerated.o")))
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             compiled.status.success(),

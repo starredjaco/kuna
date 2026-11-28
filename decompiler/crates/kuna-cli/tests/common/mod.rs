@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+pub mod linux_host;
 pub mod process;
 
 use std::path::PathBuf;
@@ -22,11 +23,24 @@ pub const CC_GCC15_DEMOTE: &[&str] = &[
     "-Wno-return-mismatch",
 ];
 
+/// How a child's `ExitStatus` reads after it panicked (exit code 101): Rust
+/// spells it `exit status: 101` on Unix and `exit code: 101` on Windows.
+pub const PANIC_EXIT: &str = if cfg!(windows) { "exit code: 101" } else { "exit status: 101" };
+
+/// How a child's `ExitStatus` reads after it aborted: `SIGABRT` on Unix, and
+/// on Windows the `STATUS_STACK_BUFFER_OVERRUN` code a Rust abort exits with.
+pub const ABORT_EXIT: &str = if cfg!(windows) { "exit code: 0xc0000409" } else { "signal: 6" };
+
+/// The repository root, canonical. On Windows `canonicalize` returns the
+/// verbatim form (`\\?\C:\...`), whose doubled leading backslash a quoted
+/// console argument reads as one escaped backslash; the root is returned in
+/// its plain form (`C:\...`) instead, which every reader takes as it is.
 pub fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
-        .canonicalize()
-        .unwrap()
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..").canonicalize().unwrap();
+    match root.to_str().and_then(|s| s.strip_prefix(r"\\?\")) {
+        Some(plain) if plain.as_bytes().get(1) == Some(&b':') => PathBuf::from(plain),
+        _ => root,
+    }
 }
 
 pub fn fixture(name: &str) -> String {

@@ -2,6 +2,7 @@ use crate::common;
 use common::process;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::process::Capped;
 
 fn fixture() -> Option<PathBuf> {
     process::optional_output(Command::new("clang").arg("--version"))?;
@@ -24,7 +25,7 @@ _adjust:
     let output = Command::new("clang")
         .args(["--target=i686-w64-windows-gnu", "-shared", "-nostdlib",
             "-Wl,--entry,0", "-Wl,--export-all-symbols"])
-        .arg(&source).arg("-o").arg(&binary).output().unwrap();
+        .arg(&source).arg("-o").arg(&binary).capped_output().unwrap();
     assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
     Some(binary)
 }

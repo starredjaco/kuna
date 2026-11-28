@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use crate::common;
+use crate::common::linux_host::OnLinux;
 use kuna_analysis::listing::model::{DiscoveredFunction, FlowType, RefKind};
 use kuna_analysis::listing::{Listing, ListingDetail, WalkPlan};
 use kuna_console::engine::{bootstrap_from_object, ConsoleProgram};
@@ -671,7 +672,7 @@ fn emitted_c_preserves_every_case_default_and_the_case_helper_side_effect() {
     let bytes = std::fs::read(fixture()).unwrap();
     let file = object::File::parse(&*bytes).unwrap();
     let marker = format!("dat_{:x}", file.section_by_name(".data").unwrap().address());
-    let available = match Command::new("gcc").arg("--version").output() {
+    let available = match Command::new("gcc").arg("--version").on_linux().output() {
         Ok(output) => {
             assert!(output.status.success());
             true
@@ -718,6 +719,7 @@ int main(void) {{
                 .arg(&source)
                 .arg("-o")
                 .arg(&executable)
+                .on_linux()
                 .output()
                 .unwrap();
             assert!(
@@ -726,7 +728,7 @@ int main(void) {{
                 String::from_utf8_lossy(&output.stderr)
             );
             assert!(
-                Command::new(&executable).status().unwrap().success(),
+                Command::new(&executable).on_linux().status().unwrap().success(),
                 "{code}"
             );
             std::fs::remove_file(executable).unwrap();

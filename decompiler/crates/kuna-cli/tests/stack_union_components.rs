@@ -22,7 +22,7 @@ fn union_array_interior_keeps_later_stack_references_declared() {
         .filter(|cc| {
             Command::new(cc)
                 .arg("--version")
-                .output()
+                .capped_output()
                 .is_ok_and(|o| o.status.success())
         })
         .collect();

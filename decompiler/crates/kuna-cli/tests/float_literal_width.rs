@@ -24,7 +24,7 @@ fn float_literals_recompile_at_the_original_precision() {
         .filter(|cc| {
             Command::new(cc)
                 .arg("--version")
-                .output()
+                .capped_output()
                 .is_ok_and(|output| output.status.success())
         })
         .collect();

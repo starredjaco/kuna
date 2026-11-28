@@ -85,7 +85,7 @@ fn emitted_function_addresses_select_the_original_native_targets() {
         .collect::<String>();
     prefix.push_str(&format!(
         "#include \"{}\"\n",
-        common::fixture("function_pointer_namespaces.cpp")
+        common::linux_host::c_path(common::fixture("function_pointer_namespaces.cpp"))
     ));
     prefix.extend(names.iter().map(|name| format!("#undef {name}\n")));
     prefix.push_str("namespace left { uintptr_t same_address(); }\nnamespace right { uintptr_t cross_address(); }\n");

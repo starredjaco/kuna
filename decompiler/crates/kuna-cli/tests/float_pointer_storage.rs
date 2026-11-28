@@ -32,7 +32,7 @@ fn round_trip(nocasts: bool) {
         .filter(|cc| {
             Command::new(cc)
                 .arg("--version")
-                .output()
+                .capped_output()
                 .is_ok_and(|o| o.status.success())
         })
         .collect();
@@ -160,7 +160,7 @@ int main(int argc,char **argv) {
 
 #[test]
 fn pointer_bits_in_a_byte_array_keep_both_scalar_views() {
-    if !Command::new("clang").arg("--version").output().is_ok_and(|o| o.status.success()) {
+    if !Command::new("clang").arg("--version").capped_output().is_ok_and(|o| o.status.success()) {
         return;
     }
     let root = common::scratch_file("global-pointer-bit-views", "dir");
@@ -174,7 +174,7 @@ fn pointer_bits_in_a_byte_array_keep_both_scalar_views() {
     std::fs::write(&declarations, "extern unsigned char storage[32];\n").unwrap();
     checked(Command::new("clang").args(["-shared", "-fPIC", "-nostdlib", "-Wl,-Bsymbolic"])
         .arg(&source).arg("-o").arg(&image));
-    let symbols = Command::new("nm").arg(&image).output().expect("run nm");
+    let symbols = Command::new("nm").arg(&image).capped_output().expect("run nm");
     let symbols = String::from_utf8(symbols.stdout).unwrap();
     let address = symbols.lines().find(|line| line.ends_with(" storage"))
         .and_then(|line| line.split_whitespace().next())
@@ -189,7 +189,7 @@ fn pointer_bits_in_a_byte_array_keep_both_scalar_views() {
             .arg("--assert").arg(format!("data 0x{address} unsigned char storage[32]"))
             .arg("-o").arg(&project));
         for compiler in ["gcc", "clang"] {
-            if !Command::new(compiler).arg("--version").output().is_ok_and(|o| o.status.success()) { continue; }
+            if !Command::new(compiler).arg("--version").capped_output().is_ok_and(|o| o.status.success()) { continue; }
             for optimization in ["-O0", "-O2"] {
                 let executable = root.join(format!("{compiler}{optimization}-{stackviews}"));
                 checked(Command::new(compiler)

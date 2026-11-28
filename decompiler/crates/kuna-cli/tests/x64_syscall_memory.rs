@@ -29,7 +29,7 @@ fn compile(args: &[&str], source: &Path, output: &Path) {
         .arg(source)
         .args(["-o"])
         .arg(output)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -40,7 +40,7 @@ fn compile(args: &[&str], source: &Path, output: &Path) {
 
 #[test]
 fn excluded_abis_preserve_the_register_only_syscall_model() {
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     let source = common::scratch_file("x64-syscall-scope", "S");
@@ -141,7 +141,7 @@ fn excluded_abis_preserve_the_register_only_syscall_model() {
                 let printed = common::scratch_file("x64-syscall-excluded", "c");
                 std::fs::write(&printed, format!("#include <unistd.h>\n{text}")).unwrap();
                 for compiler in ["cc", "clang"] {
-                    if Command::new(compiler).arg("--version").output().is_err() {
+                    if Command::new(compiler).arg("--version").capped_output().is_err() {
                         continue;
                     }
                     for optimization in ["-O0", "-O2"] {
@@ -151,7 +151,7 @@ fn excluded_abis_preserve_the_register_only_syscall_model() {
                             .arg(&printed)
                             .arg("-o")
                             .arg(&output)
-                            .output()
+                            .capped_output()
                             .unwrap();
                         assert!(
                             result.status.success(),
@@ -182,7 +182,7 @@ fn excluded_abis_preserve_the_register_only_syscall_model() {
 
 #[test]
 fn caller_metadata_writes_keep_the_physical_pointer_payload() {
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     let source = common::scratch_file("x64-syscall-metadata", "S");
@@ -202,7 +202,7 @@ fn caller_metadata_writes_keep_the_physical_pointer_payload() {
     );
     let roundtrip = |printed: &Path| {
         for compiler in ["gcc", "clang"] {
-            if Command::new(compiler).arg("--version").output().is_err() {
+            if Command::new(compiler).arg("--version").capped_output().is_err() {
                 continue;
             }
             for optimization in ["-O0", "-O2"] {
@@ -213,7 +213,7 @@ fn caller_metadata_writes_keep_the_physical_pointer_payload() {
                     .arg(&native)
                     .arg("-o")
                     .arg(&output)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     result.status.success(),
@@ -286,7 +286,7 @@ fn caller_metadata_writes_keep_the_physical_pointer_payload() {
 
 #[test]
 fn returned_lengths_precede_the_post_syscall_buffer_read() {
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     let source = common::scratch_file("x64-syscall-lengths", "c");
@@ -381,7 +381,7 @@ fn decompile(object: &Path, mode: Option<&str>) -> Vec<(String, String)> {
 
 #[test]
 fn saved_reads_and_kernel_observed_stores_round_trip_through_linux_pipes() {
-    if Command::new("cc").arg("--version").output().is_err() {
+    if Command::new("cc").arg("--version").capped_output().is_err() {
         return;
     }
     let source = common::scratch_file("x64-syscall-source", "c");

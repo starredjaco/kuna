@@ -113,7 +113,7 @@ fn a_one_block_if_before_a_constant_return_round_trips_through_the_printed_c() {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),

@@ -19,7 +19,7 @@ fn checked(command: &mut Command) -> Output {
 fn declared_preserved_input_does_not_hide_a_reused_stack_local() {
     if !Command::new("clang")
         .arg("--version")
-        .output()
+        .capped_output()
         .is_ok_and(|output| output.status.success())
     {
         eprintln!("Clang unavailable; skipping cross-target fixture");

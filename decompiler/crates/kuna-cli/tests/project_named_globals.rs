@@ -36,7 +36,7 @@ fn named_global_objects_compile_and_match_the_original_shared_library() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -90,7 +90,7 @@ fn named_global_objects_compile_and_match_the_original_shared_library() {
         assert!(declarations[0].contains(object), "{selected}: {isolated_header}");
         let compiled_object = isolated.join("isolated.o");
         let compiled = Command::new("gcc").args(["-std=c11", "-Wall", "-Werror", "-c"])
-            .arg(isolated.join(format!("{name}.c"))).arg("-o").arg(&compiled_object).output().unwrap();
+            .arg(isolated.join(format!("{name}.c"))).arg("-o").arg(&compiled_object).capped_output().unwrap();
         assert!(compiled.status.success(), "{selected}: {}", String::from_utf8_lossy(&compiled.stderr));
         std::fs::remove_dir_all(isolated).unwrap();
     }
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {{
                 .arg("-ldl")
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -197,7 +197,7 @@ int last(void) { return consume((int *)(bytes+60)); }
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -286,7 +286,7 @@ int main(int argc,char **argv) {{
                 .arg("-ldl")
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -338,7 +338,7 @@ long load(long *p, long b) { loaded = *p; if (loaded < b) return loaded / 3; ret
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
     let (out, err, status) = common::run_kuna(&[
@@ -411,7 +411,7 @@ int main(int argc, char **argv) {{
                 .arg("-ldl")
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(built.status.success(), "{cc} {opt}: {}\n{header}", String::from_utf8_lossy(&built.stderr));
             let ran = Command::new(&executable).arg(&binary).capped_status().unwrap();

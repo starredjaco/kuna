@@ -1,6 +1,7 @@
 use crate::common;
 use std::process::Command;
 use std::time::Duration;
+use crate::common::process::Capped;
 
 #[path = "fixtures/ppc32_import_fixture.rs"]
 mod fixture;
@@ -528,7 +529,7 @@ fn check_runtime_with_flags(c: &str, expected: &str, flags: &[&str]) {
             .arg(&source)
             .arg("-o")
             .arg(&executable)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             build.status.success(),

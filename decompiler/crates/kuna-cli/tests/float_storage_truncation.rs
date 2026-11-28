@@ -86,7 +86,7 @@ int main(void) {
     let c_path = common::scratch_file("float-storage-truncation", "c");
     std::fs::write(&c_path, source).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for optimization in ["-O0", "-O2"] {
@@ -96,7 +96,7 @@ int main(void) {
                 .arg(&c_path)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),
@@ -236,7 +236,7 @@ int main(void) {
     let c_path = common::scratch_file("logical-integer-views", "c");
     std::fs::write(&c_path, source).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for optimization in ["-O0", "-O2"] {
@@ -246,7 +246,7 @@ int main(void) {
                 .arg(&c_path)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),
@@ -355,7 +355,7 @@ int main(void) {
     let c_path = common::scratch_file("mixed-phi-storage", "c");
     std::fs::write(&c_path, source).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for optimization in ["-O0", "-O2"] {
@@ -365,7 +365,7 @@ int main(void) {
                 .arg(&c_path)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),
@@ -441,7 +441,7 @@ int main(void) { return check(scale); }
     let c_path = common::scratch_file("integer-register-argument", "c");
     std::fs::write(&c_path, source).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for optimization in ["-O0", "-O2"] {
@@ -451,7 +451,7 @@ int main(void) { return check(scale); }
                 .arg(&c_path)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 build.status.success(),

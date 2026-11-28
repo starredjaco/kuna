@@ -58,7 +58,7 @@ _sample_indirect:
         .arg(&provider)
         .arg("-o")
         .arg(&library)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -77,7 +77,7 @@ _sample_indirect:
         .arg(&import_library)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -162,7 +162,7 @@ _sample_indirect:
                             .arg(&recovered)
                             .arg("-o")
                             .arg(&executable)
-                            .output()
+                            .capped_output()
                             .unwrap();
                         assert!(
                             result.status.success(),

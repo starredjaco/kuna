@@ -5,6 +5,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const FUNCS: &str = "wide,wide32,ornull,suffix,first,table,weekly";
 
@@ -57,7 +58,7 @@ fn wide_literals_round_trip_beside_int_tables() {
                     .arg(&exe)
                     .arg(&src)
                     .arg(&harness)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

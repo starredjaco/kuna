@@ -41,7 +41,7 @@ fn raw_extended_loads_round_trip_through_native_i386_calls() {
             .arg(input)
             .arg("-o")
             .arg(output)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             result.status.success(),
@@ -137,7 +137,7 @@ __attribute__((noreturn,force_align_arg_pointer)) void _start(void) {{
                 .arg(&object)
                 .args(["-Wl,-e,_start", "-o"])
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 result.status.success(),

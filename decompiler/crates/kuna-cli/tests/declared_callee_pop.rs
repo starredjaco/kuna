@@ -22,7 +22,7 @@ fn checked(command: &mut Command) -> Output {
 fn declared_callee_pop_preserves_stack_addresses() {
     if !Command::new("clang")
         .arg("--version")
-        .output()
+        .capped_output()
         .is_ok_and(|output| output.status.success())
     {
         eprintln!("Clang unavailable; skipping cross-target fixture");

@@ -9,6 +9,7 @@ use kuna_console::ifaceterm::ConsoleCommands;
 use kuna_decomp::kuna_langfacet::LangFacet;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -227,7 +228,7 @@ fn malformed_or_repeated_dwarf_contracts_preserve_inference() {
 }
 
 fn run(command: &mut Command) -> Output {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(
         output.status.success(),
         "{command:?}:\n{}\n{}",

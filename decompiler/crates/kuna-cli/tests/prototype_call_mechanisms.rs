@@ -69,7 +69,7 @@ pair:
         .arg(&assembly)
         .arg("-o")
         .arg(&original)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -84,7 +84,7 @@ pair:
         .arg(&driver)
         .args(["-ldl", "-lm", "-o"])
         .arg(&client)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -136,7 +136,7 @@ pair:
                     .arg(&regenerated)
                     .arg("-o")
                     .arg(&binary)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     built.status.success(),
@@ -220,7 +220,7 @@ poke:
         .arg(&assembly)
         .arg("-o")
         .arg(&original)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
         .arg(&driver)
         .args(["-ldl", "-o"])
         .arg(&client)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
                     .arg(&regenerated)
                     .arg("-o")
                     .arg(&binary)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     built.status.success(),

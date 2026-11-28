@@ -3,7 +3,7 @@ use std::{fs, process::Command};
 use crate::common::process::Capped;
 
 fn check(target: &str, windows: bool) {
-    if Command::new("clang").arg("--version").output().is_err() {
+    if Command::new("clang").arg("--version").capped_output().is_err() {
         return;
     }
     let dir = common::scratch_file("implied-word-cast", "dir");
@@ -26,7 +26,7 @@ __attribute__((naked)) unsigned int transfer(unsigned int index) {
         .arg(&source)
         .arg("-o")
         .arg(&object)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -83,7 +83,7 @@ __attribute__((naked)) unsigned int transfer(unsigned int index) {
         &wrapper,
         format!(
             "#define {name} regenerated_transfer\n#include \"{}\"\n",
-            export.join("fixture.o.c").display()
+            common::linux_host::c_path(export.join("fixture.o.c"))
         ),
     )
     .unwrap();
@@ -115,7 +115,7 @@ int main(void) {
             .arg(&wrapper)
             .arg("-o")
             .arg(&output)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             compiled.status.success(),
@@ -131,7 +131,7 @@ int main(void) {
                 .arg(&driver)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 linked.status.success(),

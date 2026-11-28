@@ -47,7 +47,7 @@ fn late_resolved_stores_remain_visible_to_calls_and_aliasing_loads() {
                     .arg(&source)
                     .arg("-o")
                     .arg(&exe)
-                    .output()
+                    .capped_output()
                     .expect("compile the printed C");
                 assert!(
                     compile.status.success(),
@@ -150,7 +150,7 @@ int main(void) {{
             for level in ["-O0", "-O2"] {
                 let exe = root.path().join(format!("store-{count}-{cc}-{level}"));
                 let compile = Command::new(cc).args(["-std=c11", level])
-                    .arg(&source).arg("-o").arg(&exe).output().unwrap();
+                    .arg(&source).arg("-o").arg(&exe).capped_output().unwrap();
                 assert!(compile.status.success(), "{}\n{body}", String::from_utf8_lossy(&compile.stderr));
                 assert!(Command::new(&exe).capped_status().unwrap().success(), "{cc} {level}: {body}");
             }

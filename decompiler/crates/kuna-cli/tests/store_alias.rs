@@ -9,6 +9,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const FUNCS: &str = "s_param,s_const,s_once,s_plain,s_short,s_byte,s_long,s_narrow,s_branch,s_loop,s_cmp,\
                      l_keep,l_keepc,l_reload,l_twice,w_order,w_order2,r_order,w_inc,r_cond,r_two,r_loop,\
@@ -68,7 +69,7 @@ fn a_global_is_read_where_the_binary_reads_it_around_a_pointer_store() {
                     .arg(&exe)
                     .arg(&src)
                     .arg(&harness)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

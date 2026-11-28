@@ -5,6 +5,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const FUNCS: &str = "go,go16,gomixed,narrow,opened,wide";
 
@@ -61,7 +62,7 @@ fn character_code_arrays_round_trip_beside_one_character_literals() {
                     .arg(&exe)
                     .arg(&src)
                     .arg(&harness)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

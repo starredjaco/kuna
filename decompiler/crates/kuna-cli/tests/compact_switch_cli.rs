@@ -293,7 +293,7 @@ int main(int argc, char **argv) {{
                 .arg(&src)
                 .arg("-o")
                 .arg(&exe)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),
@@ -869,7 +869,7 @@ int main(int argc, char **argv) {{
                 .arg(&src)
                 .arg("-o")
                 .arg(&exe)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),

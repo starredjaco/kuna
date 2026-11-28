@@ -75,7 +75,7 @@ _high4:
         .arg(&asm)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -173,7 +173,7 @@ int main(void) {{
                 .arg(&driver)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),

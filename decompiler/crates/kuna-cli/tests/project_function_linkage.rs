@@ -29,7 +29,7 @@ unsigned named_local(unsigned helper_linkage) { return helper(helper_linkage)+11
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {{
                     .arg("-ldl")
                     .arg("-o")
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     built.status.success(),
@@ -165,7 +165,7 @@ fn conflicting_emitted_function_names_are_reported_in_each_execution_mode() {
         .arg(&right)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),

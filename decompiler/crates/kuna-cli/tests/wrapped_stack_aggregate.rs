@@ -117,7 +117,7 @@ __attribute__((force_align_arg_pointer)) void _start(void){{int r=driver();__asm
                         .arg(&src)
                         .arg("-o")
                         .arg(&exe)
-                        .output()
+                        .capped_output()
                         .expect("compile printed C");
                     assert!(
                         compile.status.success(),

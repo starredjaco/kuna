@@ -27,7 +27,7 @@ fn ffree_preserves_each_register_identity_without_numeric_inputs() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -107,7 +107,7 @@ int main(void) {
                 .arg(&native)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),

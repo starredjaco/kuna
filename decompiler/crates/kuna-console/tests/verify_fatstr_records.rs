@@ -113,8 +113,8 @@ fn build_go(dir: &std::path::Path, out_bin: &std::path::Path) -> bool {
     if std::fs::write(dir.join("main.go"), MAIN_GO).is_err() {
         return false;
     }
-    Command::new("go")
-        .args(["build", "-ldflags=-s -w", "-o"])
+    crate::common::linux_host::go_build()
+        .args(["-ldflags=-s -w", "-o"])
         .arg(out_bin)
         .arg("main.go")
         .current_dir(dir)
@@ -174,6 +174,7 @@ fn committed_extent(bin: &str, vma: u64, option: Option<&str>) -> Option<i32> {
 /// The record states 21 bytes; the NUL run cannot stop there (the next piece
 /// is printable), so the two options commit visibly different extents.
 #[test]
+#[cfg_attr(not(target_os = "linux"), ignore = "builds and runs the fixture as a Linux ELF with the host rustc")]
 fn rust_str_records_segment_the_glued_nul_run() {
     if !rustc_available() {
         eprintln!("verify_fatstr_records: skipping (`rustc` not on PATH)");

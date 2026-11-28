@@ -179,7 +179,7 @@ fn mapped_byte_accesses_compile_and_preserve_bytes() {
     );
     let source = dir.join("printed.c");
     std::fs::write(&source, format!(
-        "#include <stdint.h>\n#include \"{}\"\ntypedef unsigned char uint1;\ntypedef unsigned short uint2;\ntypedef unsigned int uint4;\ntypedef unsigned long long uint8;\ntypedef int int4;\nunsigned char bytes[32], whole[8], whole1[1], whole2[2], whole4[4];\nconst unsigned char readonly_bytes[8] = {{0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88}};\n{printed}", fixture("bits.h").display()
+        "#include <stdint.h>\n#include \"{}\"\ntypedef unsigned char uint1;\ntypedef unsigned short uint2;\ntypedef unsigned int uint4;\ntypedef unsigned long long uint8;\ntypedef int int4;\nunsigned char bytes[32], whole[8], whole1[1], whole2[2], whole4[4];\nconst unsigned char readonly_bytes[8] = {{0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88}};\n{printed}", common::linux_host::c_path(fixture("bits.h"))
     )).unwrap();
     for cc in compilers {
         for level in ["-O0", "-O2"] {

@@ -118,7 +118,7 @@ int main(void) {{
                     .arg(&source)
                     .arg("-o")
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     compiled.status.success(),

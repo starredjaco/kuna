@@ -186,7 +186,7 @@ fn a_stored_variadic_integer_round_trips_without_claiming_unused_registers() {
         .arg(fixture.join("selected.c"))
         .arg("-o")
         .arg(&object)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         compiled.status.success(),
@@ -200,7 +200,7 @@ fn a_stored_variadic_integer_round_trips_without_claiming_unused_registers() {
         .arg(fixture.join("native.c"))
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -400,7 +400,7 @@ int main(void) {{
                 .args(["-std=gnu11", level, "-o"])
                 .arg(&exe)
                 .arg(&src)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),

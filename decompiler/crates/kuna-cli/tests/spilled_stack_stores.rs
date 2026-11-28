@@ -97,7 +97,7 @@ fn spilled_stack_pointer_writes_round_trip_with_alias_and_escape_controls() {
                         .arg(&src)
                         .arg("-o")
                         .arg(&exe)
-                        .output()
+                        .capped_output()
                         .expect("compile the printed C");
                     assert!(
                         compile.status.success(),

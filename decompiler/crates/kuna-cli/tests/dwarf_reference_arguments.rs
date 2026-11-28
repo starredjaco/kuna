@@ -49,7 +49,7 @@ fn c_values_pointers_and_cpp_references_keep_their_existing_signatures() {
         std::fs::write(&path, source).unwrap();
         for level in ["-O0", "-O2"] {
             let output = Command::new(compiler).args(["-g", "-shared", "-fPIC", level])
-                .arg(&path).arg("-o").arg(&object).output().unwrap();
+                .arg(&path).arg("-o").arg(&object).capped_output().unwrap();
             assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
             for &(function, signature) in functions {
                 let (body, err, status) = common::run_kuna(&["decompile", object.to_str().unwrap(), function]);
@@ -76,7 +76,7 @@ fn pe_reference_arguments_keep_their_stack_slots() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -110,7 +110,7 @@ fn large_reference_array_does_not_abort_parameter_allocation() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -140,7 +140,7 @@ fn reference_parameters_round_trip(optimizations: &[&str]) {
             .arg(&source)
             .arg("-o")
             .arg(&object)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             compiled.status.success(),
@@ -213,7 +213,7 @@ int main(void) {
                     .arg(&object)
                     .arg("-o")
                     .arg(&exe)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     result.status.success(),

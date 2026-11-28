@@ -227,7 +227,7 @@ int main(void) {{
     )
     .unwrap();
     for cc in &compilers {
-        let compile = Command::new(cc).args(["-std=c11", "-O1"]).arg(&src).arg("-o").arg(&exe).output().unwrap();
+        let compile = Command::new(cc).args(["-std=c11", "-O1"]).arg(&src).arg("-o").arg(&exe).capped_output().unwrap();
         assert!(compile.status.success(), "{cc}: {}\n{printed}", String::from_utf8_lossy(&compile.stderr));
         assert!(Command::new(&exe).capped_status().unwrap().success(), "{cc}: {printed}");
     }

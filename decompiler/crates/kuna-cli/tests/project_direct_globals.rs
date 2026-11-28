@@ -19,7 +19,7 @@ fn exported_scalar_global_compiles_and_matches_the_original_shared_library() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         built.status.success(),
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {{
                 .arg("-ldl")
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),

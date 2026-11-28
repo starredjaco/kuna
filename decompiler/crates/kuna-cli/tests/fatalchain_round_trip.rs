@@ -12,6 +12,7 @@
 use crate::common;
 use common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const SOURCE: &str = include_str!("../../kuna-analysis/tests/fixtures/fatalchain.c");
 
@@ -128,14 +129,14 @@ fn a_chain_into_a_no_return_call_round_trips_through_the_printed_c() {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
                         "{cc} {level} rejected the printed C ({image}, condfold {opt}):\n{}\n{text}",
                         String::from_utf8_lossy(&out.stderr)
                     );
-                    let run = Command::new(&exe).output().expect("run the round trip");
+                    let run = Command::new(&exe).capped_output().expect("run the round trip");
                     assert!(
                         run.status.success(),
                         "{image} printed with condfold {opt} and built by {cc} {level} behaves differently:\n{}\n{text}",
@@ -230,14 +231,14 @@ fn a_chain_into_an_ordinary_block_round_trips_through_the_printed_c() {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),
                         "{cc} {level} rejected the printed C ({image}, condfold {opt}):\n{}\n{text}",
                         String::from_utf8_lossy(&out.stderr)
                     );
-                    let run = Command::new(&exe).output().expect("run the round trip");
+                    let run = Command::new(&exe).capped_output().expect("run the round trip");
                     assert!(
                         run.status.success(),
                         "{image} printed with condfold {opt} and built by {cc} {level} behaves differently:\n{}\n{text}",

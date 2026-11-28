@@ -6,6 +6,7 @@ use kuna_console::ifacedecomp::{execute, register_decomp_commands, IfaceDecompDa
 use kuna_console::ifaceterm::ConsoleCommands;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::linux_host::OnLinux;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -45,7 +46,7 @@ fn decompile(binary: &Path, names: &[&str], enabled: bool, options: &[&str]) -> 
     }).collect()
 }
 fn run(command: &mut Command) {
-    let output = command.output().unwrap();
+    let output = command.on_linux().output().unwrap();
     assert!(output.status.success(), "{command:?}:\n{}\n{}",
         String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
 }
@@ -145,7 +146,7 @@ func main() {
 fn native_go_contracts_compile_and_execute_without_assertions() {
     if !go_available() { return; }
     let binary = common::scratch_file("godwarfsig-native", "elf");
-    run(Command::new("go").args(["build", "-trimpath", "-buildvcs=false", "-o"]).arg(&binary)
+    run(crate::common::linux_host::go_build().args(["-trimpath", "-buildvcs=false", "-o"]).arg(&binary)
         .arg(root().join("tests/fixtures/go-output/output.go")));
     let names = ["main.add", "main.choose", "main.sumFor", "main.shortCalls", "main.loopCalls",
         "main.dispatch", "main.readAt", "main.writeAt", "main.fromWord", "main.toWord",

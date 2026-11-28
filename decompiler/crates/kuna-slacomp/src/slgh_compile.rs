@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use kuna_base::error::KunaResult;
+use kuna_base::filemanage::FileManage;
 use kuna_base::space::AddrSpace;
 
 use kuna_num::opcodes::OpCode;
@@ -1757,17 +1758,19 @@ enum BinKind {
 // Path/file helpers (FileManage::splitPath / isAbsolutePath)
 // ===========================================================================
 
-/// C++ `FileManage::splitPath(full, path, base)`.
+/// C++ `FileManage::splitPath(full, path, base)`: split after the last
+/// separator, which on Windows is `'\'` as well as `'/'`.
 fn split_path(full: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    match full.iter().rposition(|&c| c == b'/') {
+    match full.iter().rposition(|&c| FileManage::is_separator(c as char)) {
         Some(pos) => (full[..=pos].to_vec(), full[pos + 1..].to_vec()),
         None => (Vec::new(), full.to_vec()),
     }
 }
 
-/// C++ `FileManage::isAbsolutePath`.
+/// C++ `FileManage::isAbsolutePath`: a leading separator, or on Windows a
+/// drive (`C:\`, `C:/`).
 fn is_absolute_path(p: &[u8]) -> bool {
-    p.first() == Some(&b'/')
+    FileManage::is_absolute_path(&String::from_utf8_lossy(p))
 }
 
 // ===========================================================================

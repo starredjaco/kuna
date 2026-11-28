@@ -9,6 +9,11 @@
 //! (`g.stackguard0 = stackPreempt`) is the exact idiom the runtime source
 //! spells.
 
+/// The Linux host the round trips build for (kuna-cli's copy).
+#[allow(dead_code)]
+#[path = "../../kuna-cli/tests/common/linux_host.rs"]
+mod linux_host;
+
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
@@ -54,8 +59,8 @@ fn build_go(dir: &std::path::Path, out_bin: &std::path::Path) -> bool {
     if std::fs::write(dir.join("main.go"), MAIN_GO).is_err() {
         return false;
     }
-    Command::new("go")
-        .args(["build", "-ldflags=-s -w", "-o"])
+    crate::linux_host::go_build()
+        .args(["-ldflags=-s -w", "-o"])
         .arg(out_bin)
         .arg("main.go")
         .current_dir(dir)

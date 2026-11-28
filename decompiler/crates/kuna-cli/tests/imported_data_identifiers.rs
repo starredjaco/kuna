@@ -46,7 +46,7 @@ end function sample
         if compiler == "gfortran" {
             command.args(["-g", "-fcheck=all"]);
         }
-        let built = command.arg(&input).arg("-o").arg(&binary).output().unwrap();
+        let built = command.arg(&input).arg("-o").arg(&binary).capped_output().unwrap();
         assert!(
             built.status.success(),
             "{}",
@@ -98,7 +98,7 @@ end function sample
                 .arg(&input)
                 .arg("-o")
                 .arg(&debug_binary)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {{
                     .arg("-ldl")
                     .arg("-o")
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     built.status.success(),
@@ -239,7 +239,7 @@ fn shared_data_spelling_resolves_to_its_lowest_address_in_both_modes() {
         command.arg(&source);
         sources.push(source);
     }
-    let built = command.arg("-o").arg(&binary).output().unwrap();
+    let built = command.arg("-o").arg(&binary).capped_output().unwrap();
     assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
     let image = std::fs::read(&binary).unwrap();
     let lowest = object::File::parse(&*image)

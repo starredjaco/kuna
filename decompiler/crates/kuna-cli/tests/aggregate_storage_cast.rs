@@ -42,7 +42,7 @@ struct pair swap_double(double x, int c) { struct pair value; __builtin_memcpy(&
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         result.status.success(),
@@ -131,7 +131,7 @@ int main(void) {{
                 .arg(&binary)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 result.status.success(),

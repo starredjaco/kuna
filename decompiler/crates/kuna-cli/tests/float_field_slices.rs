@@ -73,7 +73,7 @@ int main(void) {{
 }}
 "#)).unwrap();
     for compiler in ["gcc", "clang"] {
-        if Command::new(compiler).arg("--version").output().is_err() {
+        if Command::new(compiler).arg("--version").capped_output().is_err() {
             continue;
         }
         for level in ["-O0", "-O2"] {
@@ -83,7 +83,7 @@ int main(void) {{
                 .arg(&source)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),

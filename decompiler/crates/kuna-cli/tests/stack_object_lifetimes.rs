@@ -112,7 +112,7 @@ fn tree_range_members_use_the_pointer_type_of_each_native_access() {
         let start = code.find("void tree_range(").unwrap();
         let (types, body) = code.split_at(start);
         let source = common::scratch_file("tree-range-emitted", "c");
-        let include = fixture.replace('\\', "\\\\").replace('"', "\\\"");
+        let include = common::linux_host::c_path(&fixture);
         let program = format!(
             "{PRELUDE}\n{types}\n#define KUNA_EMITTED_TREE_TYPES 1\n#define KUNA_EMITTED_TREE_BODY 1\n#include \"{include}\"\n__attribute__((ms_abi))\n{body}\n"
         );

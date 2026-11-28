@@ -75,7 +75,7 @@ fn execute(code: &str, checks: &str) {
          typedef uint8_t undefined1; typedef uint16_t undefined2;\n\
          typedef uint32_t undefined4; typedef uint64_t undefined8;\n\
          {code}\nint main(void) {{ {checks} return 0; }}\n",
-            original.display(),
+            common::linux_host::c_path(&original),
         ),
     )
     .unwrap();

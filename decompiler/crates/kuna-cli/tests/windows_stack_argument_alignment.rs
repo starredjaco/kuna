@@ -18,7 +18,7 @@ fn wide_arguments_follow_an_integer_or_hidden_return_pointer_without_padding() {
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -63,7 +63,7 @@ fn wide_arguments_follow_an_integer_or_hidden_return_pointer_without_padding() {
                 .arg(&regenerated)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 output.status.success(),

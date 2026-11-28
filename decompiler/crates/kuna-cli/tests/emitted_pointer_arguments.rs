@@ -88,7 +88,7 @@ fn round_trip(decls: &str, printed: &str, main: &str) {
                 .arg(&src)
                 .arg("-o")
                 .arg(&exe)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),

@@ -42,7 +42,7 @@ _adjust_value:
         .arg(&source)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -136,7 +136,7 @@ int main(void) {{
                         .arg(&regenerated)
                         .arg("-o")
                         .arg(&executable)
-                        .output()
+                        .capped_output()
                         .unwrap();
                     assert!(
                         output.status.success(),
@@ -198,7 +198,7 @@ adjust_value:
         .arg(&second)
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),

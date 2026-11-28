@@ -21,7 +21,7 @@ fn checked(command: &mut Command) -> Output {
 fn an_asserted_float_table_displaces_an_inferred_interior_string() {
     if !Command::new("clang")
         .arg("--version")
-        .output()
+        .capped_output()
         .is_ok_and(|o| o.status.success())
     {
         eprintln!("Clang unavailable; skipping ELF fixture");
@@ -92,7 +92,7 @@ fn check_table(assembly: &str) {
     for compiler in ["gcc", "clang"] {
         if !Command::new(compiler)
             .arg("--version")
-            .output()
+            .capped_output()
             .is_ok_and(|o| o.status.success())
         {
             continue;

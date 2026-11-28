@@ -21,7 +21,7 @@ float loaded_pair(const unsigned char *buf) { uint64_t w; memcpy(&w,buf,8); floa
     // Pin the sample's codegen: a host gcc that vectorizes p[0]+p[1] (AVX shuffles)
     // makes kuna emit vshufps_avx/SUB164 pseudo-ops, which cannot round-trip.
     let output = Command::new("gcc").args(["-O2", "-g", "-fPIC", "-shared", "-march=x86-64", "-fno-tree-vectorize"])
-        .arg(&source).arg("-o").arg(&binary).output().unwrap();
+        .arg(&source).arg("-o").arg(&binary).capped_output().unwrap();
     assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
     let mut rust_code = String::new();
     let mut code = String::from("#include <stdint.h>\n#include <string.h>\n");
@@ -59,7 +59,7 @@ int main(void) {
         if process::optional_output(Command::new(compiler).arg("--version")).is_none() { continue; }
         for level in ["-O0", "-O2"] {
             let output = Command::new(compiler).args(["-std=c11", level]).arg(&regenerated)
-                .arg(&binary).arg("-o").arg(&executable).output().unwrap();
+                .arg(&binary).arg("-o").arg(&executable).capped_output().unwrap();
             assert!(output.status.success(), "{}\n{code}", String::from_utf8_lossy(&output.stderr));
             assert!(Command::new(&executable).capped_status().unwrap().success(), "{compiler} {level}\n{code}");
         }

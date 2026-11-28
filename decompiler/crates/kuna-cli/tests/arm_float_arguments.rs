@@ -171,7 +171,7 @@ fn single_arguments_written_over_a_double_result_are_read_as_written() {
         .arg(&executable)
         .arg(&source)
         .env("TMPDIR", source.parent().unwrap())
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         compile.status.success(),
@@ -307,7 +307,7 @@ fn a_backfill_slot_below_a_double_is_neither_a_parameter_nor_an_argument() {
             .arg(&executable)
             .arg(&source)
             .env("TMPDIR", source.parent().unwrap())
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             compile.status.success(),
@@ -668,7 +668,7 @@ fn a_double_handed_on_in_a_core_pair_is_a_double_parameter() {
             .args(["-std=c11", "-fsyntax-only"])
             .arg(&source)
             .env("TMPDIR", source.parent().unwrap())
-            .output()
+            .capped_output()
             .unwrap();
         assert!(compile.status.success(), "{build}: {}\n{body}", String::from_utf8_lossy(&compile.stderr));
     }
@@ -726,7 +726,7 @@ fn compile_and_run(sources: &[std::path::PathBuf], executable: &std::path::Path)
         .arg(executable)
         .args(sources)
         .env("TMPDIR", executable.parent().unwrap())
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         compile.status.success(),
@@ -809,7 +809,7 @@ fn narrowing_forwarded_contracts_compile_and_preserve_values() {
         .arg(&executable)
         .arg(&source)
         .env("TMPDIR", source.parent().unwrap())
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         compile.status.success(),
@@ -921,7 +921,7 @@ fn recovered_scalar_contracts_compile_and_compute_the_expected_values() {
         .arg(&executable)
         .arg(&source)
         .env("TMPDIR", source.parent().unwrap())
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         compile.status.success(),
@@ -1003,7 +1003,7 @@ fn compiled_arm_and_thumb_sources_preserve_mixed_values_and_declared_order_contr
                 .arg(&image)
                 .arg(&source)
                 .env("TMPDIR", source.parent().unwrap())
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),
@@ -1095,7 +1095,7 @@ fn compiled_arm_and_thumb_sources_preserve_mixed_values_and_declared_order_contr
                     .arg(&executable)
                     .arg(&emitted)
                     .env("TMPDIR", source.parent().unwrap())
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     compile.status.success(),

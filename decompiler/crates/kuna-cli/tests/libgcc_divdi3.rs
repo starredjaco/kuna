@@ -66,7 +66,7 @@ fn signed_di_quotient_low_word_survives_an_opaque_call() {
     std::fs::write(&image, caller(true)).unwrap();
     let compilers: Vec<_> = ["gcc", "clang"]
         .into_iter()
-        .filter(|cc| Command::new(cc).arg("--version").output().is_ok())
+        .filter(|cc| Command::new(cc).arg("--version").capped_output().is_ok())
         .collect();
     assert!(!compilers.is_empty(), "a C compiler is required");
     let decompile = |option: Option<&str>| {
@@ -125,7 +125,7 @@ int main(void) {{
                 .arg(&source)
                 .arg("-o")
                 .arg(&executable)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 built.status.success(),
@@ -174,7 +174,7 @@ int main(void) {{
 "#)).unwrap();
     let mut checked = 0;
     for cc in ["gcc", "clang"] {
-        if Command::new(cc).arg("--version").output().is_err() {
+        if Command::new(cc).arg("--version").capped_output().is_err() {
             continue;
         }
         let executable = root.path().join(cc);
@@ -183,7 +183,7 @@ int main(void) {{
             .arg(&source)
             .arg("-o")
             .arg(&executable)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(
             built.status.success(),
@@ -201,7 +201,7 @@ int main(void) {{
 
 #[test]
 fn declared_wide_results_survive_caller_return_recovery() {
-    if Command::new("clang").arg("--version").output().is_err() {
+    if Command::new("clang").arg("--version").capped_output().is_err() {
         return;
     }
     let root = tempfile::tempdir().unwrap();
@@ -289,7 +289,7 @@ int main(void) {{
 }}
 "#)).unwrap();
             for cc in ["gcc", "clang"] {
-                if Command::new(cc).arg("--version").output().is_err() {
+                if Command::new(cc).arg("--version").capped_output().is_err() {
                     continue;
                 }
                 for opt in ["-O0", "-O2"] {
@@ -305,7 +305,7 @@ int main(void) {{
                         .arg(&source)
                         .arg("-o")
                         .arg(&executable)
-                        .output()
+                        .capped_output()
                         .unwrap();
                     assert!(
                         built.status.success(),
@@ -327,7 +327,7 @@ int main(void) {{
 
 #[test]
 fn a_consumed_wide_result_is_not_a_return() {
-    if Command::new("clang").arg("--version").output().is_err() {
+    if Command::new("clang").arg("--version").capped_output().is_err() {
         return;
     }
     let root = tempfile::tempdir().unwrap();

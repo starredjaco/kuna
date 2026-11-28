@@ -1,3 +1,8 @@
+/// The Linux host the C round trips build and run on (kuna-cli's copy).
+#[allow(dead_code)]
+#[path = "../../../kuna-cli/tests/common/linux_host.rs"]
+pub mod linux_host;
+
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 

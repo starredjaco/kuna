@@ -1,5 +1,10 @@
 use super::*;
 
+/// The Linux host the C round trips build and run on (kuna-cli's copy).
+#[allow(dead_code)]
+#[path = "../../../kuna-cli/tests/common/linux_host.rs"]
+mod linux_host;
+
 fn array(name: &str, address: u64, size: i64) -> GlobalInfo {
     GlobalInfo {
         address,
@@ -69,8 +74,9 @@ fn uncertain_or_incompatible_storage_remains_diagnostic() {
 
 #[test]
 fn emitted_aliases_share_writes_and_relocate_with_the_owner() {
+    use linux_host::OnLinux;
     use std::process::Command;
-    let compiler = match Command::new("cc").arg("--version").output() {
+    let compiler = match Command::new("cc").arg("--version").on_linux().output() {
         Ok(output) => output,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
             eprintln!("no C compiler for overlapping string alias observer");
@@ -144,6 +150,7 @@ int main(void) {{
             .arg(&input)
             .arg("-o")
             .arg(&binary)
+            .on_linux()
             .output()
             .unwrap();
         assert!(
@@ -151,7 +158,7 @@ int main(void) {{
             "{}",
             String::from_utf8_lossy(&compiled.stderr)
         );
-        let executed = Command::new(&binary).output().unwrap();
+        let executed = Command::new(&binary).on_linux().output().unwrap();
         assert!(
             executed.status.success(),
             "{}",

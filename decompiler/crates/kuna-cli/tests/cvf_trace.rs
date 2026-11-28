@@ -4,6 +4,7 @@ use object::{Object, ObjectSection, ObjectSymbol};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use crate::common::process::Capped;
 
 const SOURCE: &str = "__attribute__((section(\".trace\"), used)) const unsigned char metadata[1 << 18] = {1};\n\
 int sample(void) { return 7; }\n\
@@ -28,7 +29,7 @@ fn link(root: &Path, extra: &[&str], out: &str) -> Result<Vec<u8>, String> {
         .arg(root.join("sample.c"))
         .arg("-o")
         .arg(&binary)
-        .output()
+        .capped_output()
         .map_err(|e| format!("clang: {e}"))?;
     if !output.status.success() {
         return Err(String::from_utf8_lossy(&output.stderr).into_owned());
@@ -200,7 +201,7 @@ fn pe_trace_names_only_free_placeholders() {
             .arg(source)
             .arg("-o")
             .arg(object)
-            .output()
+            .capped_output()
             .unwrap();
         assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
         let bytes = std::fs::read(object).unwrap();

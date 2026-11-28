@@ -188,11 +188,7 @@ fn emitted_c_round_trip(
     let source = common::scratch_file("saved-xmm-msabi-emitted", "c");
     let executable = common::scratch_file("saved-xmm-msabi-emitted", "elf");
     let fixture_c = fixture("savedxmm_msabi.c");
-    let include_path = fixture_c
-        .to_str()
-        .unwrap()
-        .replace('\\', "\\\\")
-        .replace('"', "\\\"");
+    let include_path = common::linux_host::c_path(&fixture_c);
     let translation_unit = format!(
         "#include <stdint.h>\ntypedef float float4;\n__attribute__((ms_abi)) float fixture_spills_rect(void);\n{type_prefix}\n#define KUNA_EMITTED_RECT_DEFINED 1\n#include \"{include_path}\"\n__attribute__((ms_abi))\n{function_body}\n"
     );

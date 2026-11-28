@@ -27,7 +27,7 @@ fn decomp_dbg() -> String {
     PathBuf::from(env!("CARGO_BIN_EXE_kuna"))
         .parent()
         .expect("kuna binary lives in a profile directory")
-        .join("decomp_dbg")
+        .join(format!("decomp_dbg{}", std::env::consts::EXE_SUFFIX))
         .to_string_lossy()
         .into_owned()
 }

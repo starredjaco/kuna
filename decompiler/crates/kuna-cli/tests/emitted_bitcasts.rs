@@ -182,7 +182,7 @@ int main(void) {{
                         .arg(&src)
                         .arg("-o")
                         .arg(&exe)
-                        .output()
+                        .capped_output()
                         .unwrap();
                     assert!(
                         compile.status.success(),
@@ -298,7 +298,7 @@ int main(void) {{
                 .arg(&src)
                 .arg("-o")
                 .arg(&exe)
-                .output()
+                .capped_output()
                 .unwrap();
             assert!(
                 compile.status.success(),

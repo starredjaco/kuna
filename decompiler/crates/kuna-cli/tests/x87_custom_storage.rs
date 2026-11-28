@@ -16,7 +16,7 @@ fn build_image(source: &Path) -> Option<PathBuf> {
         .arg(source)
         .arg("-o")
         .arg(&object)
-        .output()
+        .capped_output()
         .unwrap();
     assert!(
         output.status.success(),
@@ -107,7 +107,7 @@ int main(void) {{
                     .arg(&regenerated)
                     .args(["-lm", "-o"])
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     built.status.success(),
@@ -260,7 +260,7 @@ __attribute__((force_align_arg_pointer)) void _start(void) {{
                     .arg(&reference)
                     .arg("-o")
                     .arg(&executable)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     output.status.success(),

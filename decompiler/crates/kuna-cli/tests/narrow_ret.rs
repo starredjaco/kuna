@@ -1,6 +1,7 @@
 use crate::common;
 use crate::common::process;
 use std::process::Command;
+use crate::common::process::Capped;
 
 const MAIN: &str = r#"
 #include <stdio.h>
@@ -92,7 +93,7 @@ fn a_narrowed_call_result_round_trips_through_the_printed_c() {
                     .args(["-std=gnu11", "-w", "-O2"])
                     .args(common::CC_GCC15_DEMOTE)
                     .args(["-o", exe.to_str().unwrap(), src.to_str().unwrap()])
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),

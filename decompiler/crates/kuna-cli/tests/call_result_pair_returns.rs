@@ -210,7 +210,7 @@ fn a_callee_result_with_a_changed_high_word_round_trips_through_the_printed_c() 
                 let out = Command::new(cc)
                     .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                     .args(common::CC_GCC15_DEMOTE)
-                    .output()
+                    .capped_output()
                     .expect("spawn the C compiler");
                 assert!(
                     out.status.success(),
@@ -365,7 +365,7 @@ fn a_pushed_argument_caller_returns_the_whole_pair_in_both_modes() {
             let out = Command::new(cc)
                 .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             assert!(
                 out.status.success(),

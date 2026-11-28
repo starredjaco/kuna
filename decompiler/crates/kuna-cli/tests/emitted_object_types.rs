@@ -57,7 +57,7 @@ int main(void) {{
             for level in ["-O0", "-O2"] {
                 let compile = Command::new(cc)
                     .args(["-std=c11", "-Werror=incompatible-pointer-types", level])
-                    .arg(&src).arg("-o").arg(&exe).output().unwrap();
+                    .arg(&src).arg("-o").arg(&exe).capped_output().unwrap();
                 assert!(compile.status.success(), "{cc} {level}: {}\n{printed}", String::from_utf8_lossy(&compile.stderr));
                 assert!(Command::new(&exe).capped_status().unwrap().success(), "{opt} {cc} {level}: {printed}");
             }

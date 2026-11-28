@@ -13,6 +13,11 @@
 use super::*;
 use crate::printlanguage::{parentheses, ReversePolish};
 
+/// The Linux host the C round trips build and run on (kuna-cli's copy).
+#[allow(dead_code)]
+#[path = "../../../../kuna-cli/tests/common/linux_host.rs"]
+mod linux_host;
+
 #[test]
 fn max_line_size_bounds_the_comment_indent_and_survives_markup() {
     let mut print = PrintC::new();
@@ -2710,6 +2715,7 @@ mod w10_printc_cast_render {
     }
 
     fn execute_float_slice_expressions(cases: &[(type_metatype, u64, &str, String)]) {
+        use super::linux_host::OnLinux;
         use std::process::Command;
         let stem = std::env::temp_dir().join(format!(
             "kuna-float-slices-{}-{}",
@@ -2762,7 +2768,7 @@ mod w10_printc_cast_render {
                 &["rustc"]
             };
             for compiler in compilers {
-                if Command::new(compiler).arg("--version").output().is_err() {
+                if Command::new(compiler).arg("--version").on_linux().output().is_err() {
                     continue;
                 }
                 for optimized in [false, true] {
@@ -2792,6 +2798,7 @@ mod w10_printc_cast_render {
                         .arg(&file)
                         .arg("-o")
                         .arg(&executable)
+                        .on_linux()
                         .output()
                         .unwrap();
                     assert!(
@@ -2800,7 +2807,7 @@ mod w10_printc_cast_render {
                         String::from_utf8_lossy(&built.stderr)
                     );
                     assert!(
-                        Command::new(&executable).status().unwrap().success(),
+                        Command::new(&executable).on_linux().status().unwrap().success(),
                         "{compiler} optimized={optimized}"
                     );
                     std::fs::remove_file(executable).unwrap();

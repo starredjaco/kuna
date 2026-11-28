@@ -211,7 +211,7 @@ fn labels_are_followed_by_statements_and_compile_as_c11() {
                     .arg(&src)
                     .arg("-o")
                     .arg(&exe)
-                    .output()
+                    .capped_output()
                     .unwrap();
                 assert!(
                     compile.status.success(),

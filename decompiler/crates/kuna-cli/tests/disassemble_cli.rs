@@ -992,6 +992,8 @@ fn the_cli_reports_usage_errors_as_exit_two() {
 }
 
 /// A binary that is not there is a load failure (exit 1), not a usage error.
+/// The reason it prints is the OS's own, which Windows words differently and
+/// in the user's language.
 #[test]
 fn the_cli_reports_a_missing_binary_as_exit_one() {
     let (_, stderr, code) = run_kuna(&["disassemble", "/nonexistent/binary", "main"]);
@@ -1000,10 +1002,8 @@ fn the_cli_reports_a_missing_binary_as_exit_one() {
     // wording. The message comes from the shared load path, so pinning its phrasing
     // here would make an unrelated reword of that path fail this command's test.
     assert!(stderr.contains("/nonexistent/binary"), "{stderr}");
-    assert!(
-        stderr.contains("No such file or directory"),
-        "the reason must be legible, got: {stderr}"
-    );
+    let reason = std::fs::metadata("/nonexistent/binary").unwrap_err().to_string();
+    assert!(stderr.contains(&reason), "the reason must be legible ({reason}), got: {stderr}");
 }
 
 // --- the windowed load --------------------------------------------------------

@@ -185,7 +185,7 @@ fn an_inline_string_length_round_trips_through_the_printed_strlen() {
                     let out = Command::new(cc)
                         .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                         .args(common::CC_GCC15_DEMOTE)
-                        .output()
+                        .capped_output()
                         .expect("spawn the C compiler");
                     assert!(
                         out.status.success(),

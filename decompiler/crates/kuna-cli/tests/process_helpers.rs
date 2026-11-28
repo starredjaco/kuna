@@ -181,3 +181,45 @@ fn capped_runs_keep_the_uncapped_results() {
         std::io::ErrorKind::NotFound
     );
 }
+
+/// A Windows drive path is spelled as WSL mounts it wherever an argument
+/// carries one; anything else passes through unchanged.
+#[test]
+fn drive_paths_are_spelled_for_the_linux_host() {
+    use common::linux_host::to_linux;
+    let root = to_linux(r"C:\");
+    assert!(root.starts_with('/') && root.ends_with("/c/"), "{root}");
+    let mnt = &root[..root.len() - 2];
+    for (arg, want) in [
+        (r"C:\work\a b\x.c".to_owned(), format!("{mnt}c/work/a b/x.c")),
+        ("d:/tmp/y.o".to_owned(), format!("{mnt}d/tmp/y.o")),
+        (r"-IC:\inc".to_owned(), format!("-I{mnt}c/inc")),
+        (r"-Wl,-T,C:\x.ld".to_owned(), format!("-Wl,-T,{mnt}c/x.ld")),
+        (r"--sysroot=E:\s".to_owned(), format!("--sysroot={mnt}e/s")),
+    ] {
+        assert_eq!(to_linux(&arg), want, "{arg}");
+    }
+    for arg in ["-O2", "/usr/include", "x.c", "-std=c11", r"ab:\c", "C:"] {
+        assert_eq!(to_linux(arg), arg);
+    }
+}
+
+/// Only a toolchain name or a Linux program is routed: kuna itself, and any
+/// other Windows program, always runs natively.
+#[test]
+fn only_linux_programs_are_routed() {
+    let mut kuna = Command::new(env!("CARGO_BIN_EXE_kuna"));
+    kuna.arg("--version");
+    common::linux_host::route(&mut kuna);
+    assert_eq!(kuna.get_program(), env!("CARGO_BIN_EXE_kuna"));
+
+    let mut cc = Command::new("cc");
+    cc.arg("--version");
+    common::linux_host::route(&mut cc);
+    let program = cc.get_program().to_string_lossy().into_owned();
+    if cfg!(windows) {
+        assert!(program == "wsl.exe" || program == "kuna-test-wsl-lacks-cc", "{program}");
+    } else {
+        assert_eq!(program, "cc");
+    }
+}

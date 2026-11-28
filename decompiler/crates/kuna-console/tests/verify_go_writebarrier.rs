@@ -115,8 +115,8 @@ fn build_go_src(dir: &std::path::Path, out_bin: &std::path::Path, src: &str) -> 
     if std::fs::write(dir.join("main.go"), src).is_err() {
         return false;
     }
-    Command::new("go")
-        .args(["build", "-ldflags=-s -w", "-o"])
+    crate::common::linux_host::go_build()
+        .args(["-ldflags=-s -w", "-o"])
         .arg(out_bin)
         .arg("main.go")
         .current_dir(dir)

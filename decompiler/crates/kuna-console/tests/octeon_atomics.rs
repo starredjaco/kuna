@@ -1,5 +1,6 @@
 //! Original instruction sequences test memory effects through final C recovery.
 use std::path::PathBuf;
+use crate::common::linux_host::OnLinux;
 
 use kuna_base::xml::DocumentStorage;
 use kuna_decomp::kuna_octeoneffects::OcteonEffectsMode;
@@ -554,7 +555,7 @@ fn recovered_pointer_snapshots_execute_with_the_original_old_value() {
     use std::process::Command;
 
     let compilers: Vec<_> = ["cc", "clang"].into_iter().filter(|compiler| {
-        match Command::new(compiler).arg("--version").output() {
+        match Command::new(compiler).arg("--version").on_linux().output() {
             Ok(result) => { assert!(result.status.success()); true }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => false,
             Err(error) => panic!("{compiler}: {error}"),
@@ -610,9 +611,9 @@ int main(void) {{
                 for optimization in ["-O0", "-O2"] {
                     let result = Command::new(compiler)
                         .args(["-std=c11", optimization, "-Werror=implicit-function-declaration", "-Werror=incompatible-pointer-types"])
-                        .arg(&file).arg("-o").arg(&executable).output().unwrap();
+                        .arg(&file).arg("-o").arg(&executable).on_linux().output().unwrap();
                     assert!(result.status.success(), "{compiler}: {}\n{code}", String::from_utf8_lossy(&result.stderr));
-                    let result = Command::new(&executable).output().unwrap();
+                    let result = Command::new(&executable).on_linux().output().unwrap();
                     assert!(result.status.success(), "{compiler} {optimization}: old value or updated memory differs: {code}");
                 }
             }

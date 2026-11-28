@@ -290,7 +290,7 @@ int main(void) {{
                     command.args(["-fsanitize=undefined", "-fno-sanitize-recover=undefined"]);
                 }
                 command.arg(&cfile).arg("-o").arg(&exe);
-                let compiled = command.output().unwrap();
+                let compiled = command.capped_output().unwrap();
                 assert!(
                     compiled.status.success(),
                     "{cc} {level}: {}\n{source}",

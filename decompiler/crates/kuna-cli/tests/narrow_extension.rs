@@ -245,7 +245,7 @@ fn compile_and_run(stem: &str, program: &str, compilers: &[&str]) -> Result<(), 
             let out = Command::new(cc)
                 .args(["-std=gnu11", "-w", "-fwrapv", level, "-o", exe.to_str().unwrap(), src.to_str().unwrap()])
                 .args(common::CC_GCC15_DEMOTE)
-                .output()
+                .capped_output()
                 .expect("spawn the C compiler");
             if !out.status.success() {
                 return Err(format!("{cc} {level} rejects the printed C:\n{}", String::from_utf8_lossy(&out.stderr)));
